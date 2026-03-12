@@ -10,10 +10,11 @@ const Leaderboard = () => {
     const fetchLeaderboard = async () => {
       try {
         const res = await api.get('/leaderboard');
-        setLeaderboard(res.data.data);
+        setLeaderboard(Array.isArray(res.data.data) ? res.data.data : []);
       } catch (err) {
         console.error("Error fetching leaderboard:", err);
         setError("Failed to load leaderboard.");
+        setLeaderboard([]);
       }
     };
     fetchLeaderboard();

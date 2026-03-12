@@ -15,21 +15,19 @@ const Dashboard = () => {
     const [weather, setWeather] = useState(null);
     const [leaderboard, setLeaderboard] = useState([]);
     const [chartFilter, setChartFilter] = useState('All');
-    const [rewards] = useState([
-      { id: 1, title: 'Redeem Coupon', desc: 'Receive discount approved for ECO50', points: 50 },
-      { id: 2, title: 'Redeem Coupon', desc: 'Receive discount approved for ECO100', points: 100 },
-      { id: 3, title: 'Redeem Coupon', desc: 'Receive discount approved for ECO150', points: 150 },
-    ]);
+    const [rewards, setRewards] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [analyticsRes, leaderboardRes] = await Promise.all([
+                const [analyticsRes, leaderboardRes, rewardsRes] = await Promise.all([
                     api.get('/analytics'),
-                    api.get('/leaderboard')
+                    api.get('/leaderboard'),
+                    api.get('/rewards')
                 ]);
                 setAnalytics(analyticsRes.data.data);
-                setLeaderboard(leaderboardRes.data.data.slice(0, 5)); // Show only top 5 in widget
+                setLeaderboard(leaderboardRes.data.data.slice(0, 5));
+                setRewards(rewardsRes.data.data.slice(0, 3)); // Show top 3 rewards
             } catch (err) {
                 console.error(err);
             }
@@ -119,13 +117,13 @@ const Dashboard = () => {
             }
         }
     };
-    const handleRedeem = () => {
-        // Trigger happy confetti effect
+
+    const handleRedeemClick = () => {
         confetti({
-            particleCount: 100,
+            particleCount: 150,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ['#10b981', '#34d399', '#ffffff'] // green eco colors
+            colors: ['#10b981', '#34d399', '#ffffff']
         });
     };
 
@@ -274,21 +272,19 @@ const Dashboard = () => {
                  <p className="text-xs text-gray-500 mb-4">Redeemable coupons to boost your footprint.</p>
                  <div className="flex space-x-4 overflow-x-auto pb-4 hide-scrollbar">
                      {rewards.map(reward => (
-                         <div key={reward.id} className="min-w-[300px] flex-shrink-0 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl p-5 text-white flex justify-between relative overflow-hidden shadow-md shadow-green-200">
+                         <div key={reward._id} className="min-w-[300px] flex-shrink-0 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl p-5 text-white flex justify-between relative overflow-hidden shadow-md shadow-green-200">
                              {/* Decorative bg element */}
                              <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
                              
                              <div className="flex-1 relative z-10 w-3/4">
-                                 <h4 className="font-bold text-lg mb-1">{reward.title}</h4>
-                                 <p className="text-green-50 text-xs mb-4 max-w-[160px] opacity-90">{reward.desc}</p>
-                                 <motion.button 
-                                     whileHover={{ scale: 1.05 }}
-                                     whileTap={{ scale: 0.95 }}
-                                     onClick={handleRedeem}
-                                     className="bg-white text-green-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-green-50 transition shadow-sm"
+                                 <h4 className="font-bold text-lg mb-1">{reward.name}</h4>
+                                 <p className="text-green-50 text-xs mb-4 max-w-[160px] opacity-90 line-clamp-2">{reward.description}</p>
+                                 <Link 
+                                     to="/rewards"
+                                     className="bg-white text-green-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-green-50 transition shadow-sm inline-block"
                                  >
-                                     Redeem
-                                 </motion.button>
+                                     View Rewards
+                                 </Link>
                              </div>
                              
                              {/* Coupon tear line simulation */}

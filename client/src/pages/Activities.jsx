@@ -48,20 +48,20 @@ const Activities = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { api } = useContext(AuthContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchActivities();
-  }, []);
+  }, [api]);
 
   const fetchActivities = async () => {
     try {
       const res = await api.get('/activities');
-      setUserActivities(res.data.data);
+      setUserActivities(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("Error fetching activities:", err);
-      // Fail silently for dashboard style tracking unless we want a big generic error
+      setUserActivities([]);
     }
   };
 
@@ -70,17 +70,17 @@ const Activities = () => {
     setMessage('');
     setError('');
     setIsSubmitting(true);
-    
+
     try {
-      const res = await api.post('/activities', { 
-        activityType: selectedActivity.type, 
-        distance: distance ? parseFloat(distance) : null 
+      const res = await api.post('/activities', {
+        activityType: selectedActivity.type,
+        distance: distance ? parseFloat(distance) : null
       });
-      
+
       setMessage(`Activity logged! You saved ${res.data.data.co2Saved.toFixed(2)} kg CO2 and earned ${res.data.data.points} points.`);
       setDistance('');
       fetchActivities(); // Refresh activities list
-      
+
       // Happy Interaction
       confetti({
         particleCount: 150,
@@ -100,14 +100,14 @@ const Activities = () => {
   const requiresDistance = ['Walking', 'Public Transport', 'Cycling'].includes(selectedActivity.type);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
       className="flex flex-col gap-8 h-full bg-green-50/30 overflow-y-auto hide-scrollbar pb-10"
     >
       <div className="flex flex-col md:flex-row gap-8">
-        
+
         {/* Left Col: Selections */}
         <div className="w-full md:w-1/2 flex flex-col gap-6">
           <div>
@@ -142,7 +142,7 @@ const Activities = () => {
 
           {/* Educational Block */}
           {selectedActivity && (
-            <motion.div 
+            <motion.div
               key={selectedActivity.type}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -170,7 +170,7 @@ const Activities = () => {
                 {selectedActivity.icon}
               </div>
             </h2>
-            
+
             <AnimatePresence>
               {message && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-green-100 text-green-700 p-4 rounded-xl mb-6 font-medium flex items-center gap-2">
@@ -236,12 +236,12 @@ const Activities = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {userActivities.slice(0, 8).map((activity, i) => (
-              <motion.div 
+            {Array.isArray(userActivities) && userActivities.slice(0, 8).map((activity, i) => (
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                key={activity._id} 
+                key={activity._id}
                 className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col"
               >
                 <div className="flex justify-between items-start mb-3">

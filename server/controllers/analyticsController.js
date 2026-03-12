@@ -23,8 +23,8 @@ exports.getAnalytics = async (req, res, next) => {
             { $sort: { '_id': 1 } }
         ]);
 
-        // Presentation Mock Data: Fill analytics if empty or too small
-        if (monthlySavings.length < 5) {
+        // Fill monthly savings with mock data only if NO real data exists
+        if (monthlySavings.length === 0) {
             monthlySavings = [
                 { _id: 1, totalCo2Saved: 120.5 },
                 { _id: 2, totalCo2Saved: 85.0 },
@@ -34,11 +34,6 @@ exports.getAnalytics = async (req, res, next) => {
                 { _id: 6, totalCo2Saved: 290.1 },
                 { _id: 7, totalCo2Saved: 410.5 }
             ];
-            // If the user's carbon footprint is 0, give them a mock score
-            if (user && user.carbonFootprint < 10) {
-                 user.carbonFootprint = 125.4;
-                 user.points = 450;
-            }
         }
 
         // Get recent activities
@@ -57,7 +52,10 @@ exports.getAnalytics = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: {
-                user,
+                user: {
+                    carbonFootprint: user?.carbonFootprint || 0,
+                    points: user?.points || 0
+                },
                 monthlySavings,
                 recentActivities
             }

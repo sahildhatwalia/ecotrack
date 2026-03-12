@@ -56,13 +56,34 @@ exports.logActivity = async (req, res, next) => {
         });
 
         // Update user's carbon footprint and points
-        await User.findByIdAndUpdate(userId, {
-            $inc: { carbonFootprint: co2Saved, points: points }
-        });
+        const user = await User.findById(userId);
+        const oldPoints = user.points;
+        const newPoints = oldPoints + points;
+        
+        user.carbonFootprint += co2Saved;
+        user.points = newPoints;
+
+        // Milestone reward logic: every 500 points
+        const oldMilestone = Math.floor(oldPoints / 500);
+        const newMilestone = Math.floor(newPoints / 500);
+
+        let milestoneAwarded = false;
+        if (newMilestone > oldMilestone) {
+            const voucherCode = 'MILE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            user.vouchers.push({
+                rewardName: `Milestone Reward (${newMilestone * 500} pts)`,
+                code: voucherCode,
+                dateRedeemed: Date.now()
+            });
+            milestoneAwarded = true;
+        }
+
+        await user.save();
 
         res.status(201).json({
             success: true,
-            data: activity
+            data: activity,
+            milestone: milestoneAwarded
         });
     } catch (err) {
         next(err);

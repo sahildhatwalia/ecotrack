@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   const api = axios.create({
     baseURL: 'http://localhost:5000/api',
+    withCredentials: true
   });
 
   api.interceptors.request.use(
@@ -25,20 +26,24 @@ export const AuthProvider = ({ children }) => {
     }
   );
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (token) {
-        try {
-          const res = await api.get('/user/me');
-          setUser(res.data.data);
-        } catch (err) {
-          console.error(err);
-          logout();
-        }
+  const loadUser = async () => {
+    if (token) {
+      try {
+        const res = await api.get('/user/me');
+        setUser(res.data.data);
+      } catch (err) {
+        console.error(err);
+        logout();
       }
+    }
+  };
+
+  useEffect(() => {
+    const initialize = async () => {
+      await loadUser();
       setLoading(false);
     };
-    fetchUser();
+    initialize();
   }, [token]);
 
   const login = async (email, password) => {
@@ -60,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout, loading, api }}>
+    <AuthContext.Provider value={{ user, token, login, signup, logout, loading, api, loadUser }}>
       {children}
     </AuthContext.Provider>
   );

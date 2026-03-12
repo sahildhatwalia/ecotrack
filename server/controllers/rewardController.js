@@ -31,12 +31,27 @@ exports.redeemReward = async (req, res, next) => {
 
         // Deduct points from user
         user.points -= reward.pointsRequired;
+
+        // Generate a random voucher code
+        const voucherCode = 'ECO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+        // Add to user's vouchers
+        user.vouchers.push({
+            rewardName: reward.name,
+            code: voucherCode,
+            dateRedeemed: Date.now()
+        });
+
         await user.save();
 
-        // Here you might want to create a record of the redemption
-        // For now, we just send a success message
-
-        res.status(200).json({ success: true, message: 'Reward redeemed successfully' });
+        res.status(200).json({ 
+            success: true, 
+            message: 'Reward redeemed successfully',
+            data: {
+                voucherCode,
+                rewardName: reward.name
+            }
+        });
     } catch (err) {
         next(err);
     }
