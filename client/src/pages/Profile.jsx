@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { User, Mail, Calendar, Award, Leaf, Ticket } from 'lucide-react';
+import { User, Mail, Calendar, Award, Leaf, Ticket, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Profile = () => {
@@ -18,7 +18,7 @@ const Profile = () => {
   const stats = [
     { label: 'CO2 Saved', value: `${user.carbonFootprint.toFixed(1)} kg`, icon: <Leaf className="text-emerald-500" />, color: 'bg-emerald-50' },
     { label: 'Total Points', value: user.points, icon: <Award className="text-yellow-500" />, color: 'bg-yellow-50' },
-    { label: 'Vouchers', value: user.vouchers?.length || 0, icon: <Ticket className="text-teal-500" />, color: 'bg-teal-50' },
+    { label: 'Trust Score', value: `${user.trustScore ?? 100}%`, icon: (user.trustScore ?? 100) > 80 ? <ShieldCheck className="text-blue-500" /> : <ShieldAlert className="text-red-500" />, color: (user.trustScore ?? 100) > 80 ? 'bg-blue-50' : 'bg-red-50' },
   ];
 
   return (
@@ -58,6 +58,11 @@ const Profile = () => {
                 >
                   <Ticket size={18} /> My Rewards
                 </Link>
+                {(user.trustScore ?? 100) < 70 && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-bold border border-red-200">
+                    <ShieldAlert size={16} /> Low Trust Score
+                  </div>
+                )}
               </div>
             </div>
 

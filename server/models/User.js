@@ -43,6 +43,22 @@ const UserSchema = new mongoose.Schema({
       }
     }
   ],
+  trustScore: {
+    type: Number,
+    default: 100,
+    min: 0,
+    max: 100
+  },
+  lastActivities: [{
+    type: { type: String },
+    distance: Number,
+    date: { type: Date, default: Date.now }
+  }],
+  dailyActivityCount: {
+    type: Map,
+    of: Number,
+    default: {}
+  },
   createdAt: {
     type: Date,
     default: Date.now

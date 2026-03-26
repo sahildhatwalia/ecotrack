@@ -19,6 +19,31 @@ const ActivitySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  distance: {
+    type: Number
+  },
+  duration: {
+    type: Number
+  },
+  // Fraud detection metadata
+  trustScore: {
+    type: Number,
+    default: 100
+  },
+  metadata: {
+    gpsAccuracy: Number,
+    isMockLocation: { type: Boolean, default: false },
+    topSpeed: Number,
+    stepCount: Number,
+    avgStepFrequency: Number,
+    rawPath: [{
+      lat: Number,
+      lng: Number,
+      timestamp: Date,
+      speed: Number,
+      accuracy: Number
+    }]
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -72,9 +72,20 @@ const Activities = () => {
     setIsSubmitting(true);
 
     try {
+      // Simulate real sensor data for development
+      // In a real mobile app, these would come from Capacitor/CoreMotion/Google Play Services
+      const simulatedMetadata = {
+        gpsAccuracy: Math.floor(Math.random() * 40) + 5, // 5m to 45m
+        isMockLocation: false,
+        topSpeed: selectedActivity.type === 'Walking' ? 6 : (selectedActivity.type === 'Cycling' ? 22 : 60),
+        stepCount: selectedActivity.type === 'Walking' ? (distance ? parseFloat(distance) * 1300 : Math.random() * 2000) : 0,
+        avgStepFrequency: selectedActivity.type === 'Walking' ? 1.8 : 0,
+      };
+
       const res = await api.post('/activities', {
         activityType: selectedActivity.type,
-        distance: distance ? parseFloat(distance) : null
+        distance: distance ? parseFloat(distance) : null,
+        metadata: simulatedMetadata
       });
 
       setMessage(`Activity logged! You saved ${res.data.data.co2Saved.toFixed(2)} kg CO2 and earned ${res.data.data.points} points.`);
