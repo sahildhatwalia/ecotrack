@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler } from 'chart.js';
-import { Bell, User, MapPin, Navigation, TrendingUp } from 'lucide-react';
+import { Bell, User, MapPin, Navigation, TrendingUp, ShieldCheck, ShieldAlert, Cpu, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import AdBanner from '../components/AdBanner';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
 
@@ -118,184 +119,204 @@ const Dashboard = () => {
         }
     };
 
-    const handleRedeemClick = () => {
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#10b981', '#34d399', '#ffffff']
-        });
-    };
+    const trustScore = user?.trustScore || 0;
+    const isHighTrust = trustScore >= 80;
 
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col h-full bg-green-50/50"
+            className="flex flex-col h-full bg-[#f8fbfa]"
         >
             {/* Page Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Dashboard</h1>
-                    <p className="text-gray-500 text-sm mt-1">Welcome back to EcoTrack!</p>
+                    <h1 className="text-3xl font-black text-neutral-900 tracking-tight">System Overview</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest">Real-time Analytics Active</p>
+                    </div>
+                </div>
+                
+                {/* AI Trust Badge */}
+                <div className={`flex items-center gap-3 px-5 py-2.5 rounded-2xl border ${isHighTrust ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'} shadow-sm transition-all hover:scale-105 group`}>
+                    <div className={`p-1.5 rounded-lg ${isHighTrust ? 'bg-emerald-500' : 'bg-rose-500'} text-white`}>
+                        {isHighTrust ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-black uppercase tracking-tighter opacity-60">AI Trust Score</span>
+                            <Cpu size={10} className="opacity-40 group-hover:rotate-180 transition-transform duration-500" />
+                        </div>
+                        <p className="text-sm font-black leading-none">{trustScore}% Verified</p>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Left Column (Main Charts) */}
-                <div className="xl:col-span-2 flex flex-col gap-6">
+                <div className="xl:col-span-2 flex flex-col gap-8">
                     {/* Top row in Left Column: Score & Recent */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
                         {/* Carbon Score Gauge Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-gray-800">Carbon Score</h3>
+                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 flex flex-col relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <TrendingUp size={80} />
                             </div>
-                            <div className="relative flex-1 flex items-center justify-center min-h-[160px]">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">Performance Index</h3>
+                                <span className="text-xs font-bold text-emerald-600">+12% vs last month</span>
+                            </div>
+                            <div className="relative flex-1 flex items-center justify-center min-h-[180px]">
                                 <div className="absolute inset-0 flex items-end justify-center pb-4">
                                      <Doughnut data={gaugeData} options={{plugins: {legend: {display: false}, tooltip: {enabled: false}}, maintainAspectRatio: false }} />
                                 </div>
                                 <div className="absolute bottom-6 flex flex-col items-center">
-                                    <span className="text-4xl font-black text-gray-800">{scoreVal.toFixed(0)}</span>
-                                    <span className="text-xs text-gray-500 font-medium">Carbon saved</span>
+                                    <span className="text-5xl font-black text-neutral-900 tracking-tighter">{scoreVal.toFixed(0)}</span>
+                                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Kg CO2 Saved</span>
                                 </div>
-                                <div className="absolute bottom-6 left-8 text-xs text-gray-400 font-bold">0</div>
-                                <div className="absolute bottom-6 right-8 text-xs text-gray-400 font-bold">{maxScore}</div>
+                            </div>
+                            <div className="flex justify-between mt-4 px-2">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-bold text-neutral-300 uppercase">Target</span>
+                                    <span className="text-sm font-black text-neutral-700">150 Kg</span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-bold text-neutral-300 uppercase">Efficiency</span>
+                                    <span className="text-sm font-black text-emerald-500">{((scoreVal/maxScore)*100).toFixed(0)}%</span>
+                                </div>
                             </div>
                         </div>
 
                         {/* Recent Activities Widget */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-gray-800">Recent Activities</h3>
-                                <Link to="/activities" className="text-green-600 text-sm font-semibold hover:underline">See All</Link>
+                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100">
+                            <div className="flex justify-between items-center mb-8">
+                                <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">Live Activity Feed</h3>
+                                <Link to="/activities" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                                    <ChevronRight size={20} />
+                                </Link>
                             </div>
-                            <div className="space-y-4">
-                                {analytics?.recentActivities?.slice(0, 2).map((activity, idx) => (
-                                    <div key={idx} className="flex items-center space-x-4 p-3 rounded-xl hover:bg-gray-50 transition border border-gray-50">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activity.activityType.toLowerCase().includes('walk') ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
-                                            {activity.activityType.toLowerCase().includes('walk') ? <TrendingUp size={20} /> : <Navigation size={20} />}
+                            <div className="space-y-6">
+                                {analytics?.recentActivities?.slice(0, 3).map((activity, idx) => (
+                                    <div key={idx} className="flex items-center gap-5 group cursor-pointer">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 ${activity.activityType.toLowerCase().includes('walk') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-sky-50 text-sky-600 border border-sky-100'}`}>
+                                            {activity.activityType.toLowerCase().includes('walk') ? <TrendingUp size={22} /> : <Navigation size={22} />}
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm font-bold text-gray-800">{activity.activityType}</p>
-                                            <p className="text-xs text-gray-500">{activity.co2Saved.toFixed(1)} kg • {new Date(activity.createdAt).toLocaleDateString()}</p>
-                                        </div>
-                                        <div className="text-gray-300">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-sm font-black text-neutral-800">{activity.activityType}</p>
+                                                <span className="text-[10px] font-bold text-emerald-500">+{activity.points} pts</span>
+                                            </div>
+                                            <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">{activity.co2Saved.toFixed(2)} kg saved • {new Date(activity.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                                         </div>
                                     </div>
                                 )) || (
-                                    <div className="text-sm text-gray-500 py-4 text-center">No recent activities.</div>
+                                    <div className="text-[10px] text-neutral-400 py-10 text-center font-black uppercase tracking-[0.2em]">Awaiting Data...</div>
                                 )}
                             </div>
+                            <Link to="/activities" className="mt-8 w-full block py-4 bg-neutral-50 border border-neutral-100 text-neutral-900 rounded-2xl text-center text-xs font-black uppercase tracking-widest hover:bg-neutral-100 transition-colors">Log New Entry</Link>
                         </div>
                     </div>
 
                     {/* Monthly Savings Area Chart */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <div className="flex justify-between items-center mb-6">
+                    <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-neutral-100">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                             <div>
-                                <h3 className="font-bold text-gray-800">Monthly CO2 Savings</h3>
-                                <p className="text-xs text-gray-500 mt-1">Monthly CO2 Savings over time.</p>
+                                <h3 className="text-xl font-black text-neutral-900 tracking-tight">Eco Impact Velocity</h3>
+                                <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest mt-1">Aggregated CO2 displacement across all vectors</p>
                             </div>
-                            <select 
-                                className="bg-gray-50 border border-gray-200 text-sm rounded-lg px-3 py-1.5 font-medium outline-none cursor-pointer focus:ring-2 focus:ring-green-400"
-                                value={chartFilter}
-                                onChange={(e) => setChartFilter(e.target.value)}
-                            >
-                                <option value="All">All Savings</option>
-                                <option value="Walking">Walking Only</option>
-                                <option value="Cycling">Cycling Only</option>
-                                <option value="Transport">Public Transport</option>
-                            </select>
+                            <div className="flex bg-neutral-50 p-1.5 rounded-2xl border border-neutral-100">
+                                {['All', 'Walking', 'Cycling'].map(f => (
+                                    <button
+                                        key={f}
+                                        onClick={() => setChartFilter(f)}
+                                        className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all ${chartFilter === f ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100' : 'text-neutral-400 hover:text-neutral-600'}`}
+                                    >
+                                        {f}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        <div className="h-64">
+                        <div className="h-72">
                             <Line data={areaChartData} options={areaChartOptions} />
                         </div>
                     </div>
+                    
+                    {/* Big Production Ad */}
+                    <AdBanner className="mt-4" />
                 </div>
 
                 {/* Right Column (Side Widgets) */}
-                <div className="flex flex-col gap-6">
-                    {/* Leaderboard */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="font-bold text-gray-800 mb-4">Leaderboard</h3>
-                        <div className="flex text-xs font-semibold text-gray-400 mb-2 px-2 uppercase">
-                            <span className="w-8">#</span>
-                            <span className="flex-1">User</span>
-                            <span className="w-16 text-right">Points</span>
-                            <span className="w-16 text-right">Saved</span>
-                        </div>
-                        <div className="space-y-1">
+                <div className="flex flex-col gap-8">
+                    {/* Leaderboard Card */}
+                    <div className="bg-neutral-900 rounded-[2.5rem] p-8 shadow-2xl text-white relative overflow-hidden group">
+                        <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
+                        <h3 className="text-lg font-black mb-8 tracking-tight flex items-center justify-between">
+                            Global Elite
+                            <span className="bg-emerald-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded tracking-widest">LIVE</span>
+                        </h3>
+                        <div className="space-y-4 relative z-10">
                             {leaderboard.map((u, i) => (
-                                <div key={u._id} className="flex items-center text-sm p-2 rounded-lg hover:bg-gray-50 transition">
-                                    <span className={`w-8 font-bold ${i === 0 ? 'text-yellow-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-600' : 'text-gray-500'}`}>{i + 1}</span>
-                                    <div className="flex-1 flex items-center space-x-2">
-                                        <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold text-xs flex items-center justify-center uppercase">{u.username.substring(0, 1)}</div>
-                                        <span className="font-medium text-gray-700">{u.username}</span>
+                                <div key={u._id} className="flex items-center gap-4 group/item cursor-pointer">
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${i === 0 ? 'bg-yellow-400 text-yellow-900 shadow-lg shadow-yellow-400/20 scale-110' : 'bg-white/5 text-neutral-400 border border-white/10'}`}>
+                                        {i + 1}
                                     </div>
-                                    <span className="w-16 text-right font-medium text-gray-600">{u.points}</span>
-                                    <span className="w-16 text-right text-gray-500">{u.carbonFootprint.toFixed(0)}k</span>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-black group-hover/item:text-emerald-400 transition-colors tracking-tight">{u.username}</p>
+                                        <div className="w-full h-1 bg-white/5 rounded-full mt-1.5 overflow-hidden">
+                                            <div className={`h-full ${i === 0 ? 'bg-yellow-400' : 'bg-emerald-500'}`} style={{ width: `${(u.points/leaderboard[0].points)*100}%` }}></div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black text-white">{u.points}</p>
+                                        <p className="text-[8px] font-bold text-neutral-500 tracking-tighter uppercase">PTS</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Local AQI Map Widget placeholder */}
-                    <div className="bg-white rounded-2xl p-1 shadow-sm border border-gray-100 relative overflow-hidden h-48 flex-shrink-0 group">
-                        {/* Placeholder Map Background */}
-                        <div className="absolute inset-0 bg-gray-200 bg-cover bg-center opacity-60 transition-transform duration-700 group-hover:scale-105" 
-                             style={{backgroundImage: "url('https://maps.googleapis.com/maps/api/staticmap?center=New+York,NY&zoom=13&size=400x400&maptype=roadmap&style=feature:all|element:labels|visibility:off&style=feature:water|color:0xbababa')"} }>
-                        </div>
-                        {/* Content */}
-                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                            <div className="flex items-center justify-center w-8 h-8 bg-green-500 text-white rounded-full mx-auto mb-auto shadow-lg shadow-green-500/50">
-                                <MapPin size={16} />
-                            </div>
-                            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 flex justify-between items-center shadow-lg">
-                                <span className="font-semibold text-gray-800 text-sm">Local AQI: {weather ? '42' : 'Loading...'}</span>
-                                <div className="flex items-center text-green-600 text-sm font-bold bg-green-100 px-2 py-1 rounded-md">
-                                    <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                                    Good
+                    {/* Local Environment Widget */}
+                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-neutral-100 flex flex-col group relative overflow-hidden">
+                        <div className="absolute top-[-50%] right-[-20%] w-64 h-64 bg-sky-400/10 rounded-full blur-[80px] pointer-events-none"></div>
+                        <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100 w-max mb-6">Local Environment</h3>
+                        
+                        {weather ? (
+                            <>
+                                <div className="flex justify-between items-center mb-6 relative z-10">
+                                    <div>
+                                        <p className="text-4xl font-black text-neutral-900 tracking-tighter">{Math.round(weather.main?.temp || 0)}°<span className="text-xl text-neutral-400">C</span></p>
+                                        <p className="text-xs font-bold text-neutral-500 capitalize">{weather.weather?.description || 'Loading...'}</p>
+                                    </div>
+                                    <div className="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-sky-100 group-hover:scale-110 transition-transform">
+                                        🌤️
+                                    </div>
                                 </div>
+                                
+                                <div className="grid grid-cols-2 gap-4 mt-auto relative z-10">
+                                    <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-100 flex flex-col items-center justify-center">
+                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Humidity</span>
+                                        <span className="text-lg font-black text-neutral-800">{weather.main?.humidity || 0}%</span>
+                                    </div>
+                                    <div className={`p-4 rounded-2xl flex flex-col items-center justify-center border ${weather.aqi <= 2 ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : weather.aqi <= 4 ? 'bg-amber-50 border-amber-100 text-amber-800' : 'bg-rose-50 border-rose-100 text-rose-800'}`}>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">AQI Index</span>
+                                        <span className="text-lg font-black">{weather.aqi || 2} / 5</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <div className="w-8 h-8 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+                                <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Scanning Environment...</p>
                             </div>
-                        </div>
+                        )}
                     </div>
-                </div>
-            </div>
 
-            {/* Bottom Row (Rewards) */}
-            <div className="mt-6 mb-6">
-                 <h3 className="font-bold text-gray-800 mb-1">Rewards</h3>
-                 <p className="text-xs text-gray-500 mb-4">Redeemable coupons to boost your footprint.</p>
-                 <div className="flex space-x-4 overflow-x-auto pb-4 hide-scrollbar">
-                     {rewards.map(reward => (
-                         <div key={reward._id} className="min-w-[300px] flex-shrink-0 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl p-5 text-white flex justify-between relative overflow-hidden shadow-md shadow-green-200">
-                             {/* Decorative bg element */}
-                             <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-                             
-                             <div className="flex-1 relative z-10 w-3/4">
-                                 <h4 className="font-bold text-lg mb-1">{reward.name}</h4>
-                                 <p className="text-green-50 text-xs mb-4 max-w-[160px] opacity-90 line-clamp-2">{reward.description}</p>
-                                 <Link 
-                                     to="/rewards"
-                                     className="bg-white text-green-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-green-50 transition shadow-sm inline-block"
-                                 >
-                                     View Rewards
-                                 </Link>
-                             </div>
-                             
-                             {/* Coupon tear line simulation */}
-                             <div className="flex flex-col justify-between items-center py-1 opacity-50 absolute right-10 top-0 bottom-0 h-full border-l border-dashed border-white/40 pl-2">
-                                  <div className="w-2 h-2 bg-white rounded-full -ml-[5px] mt-[-10px]"></div>
-                                  <div className="text-[10px] transform rotate-90 whitespace-nowrap tracking-wider font-semibold">VALID COUPON</div>
-                                  <div className="w-2 h-2 bg-white rounded-full -ml-[5px] mb-[-10px]"></div>
-                             </div>
-                         </div>
-                     ))}
-                 </div>
+                    {/* Small Ad Sidebar */}
+                    <AdBanner type="sidebar" className="mt-auto" />
+                </div>
             </div>
          </motion.div>
     );

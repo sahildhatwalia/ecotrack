@@ -2,42 +2,42 @@ import React, { useState, useContext, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Activity, MapPin, Zap, RefreshCcw, Navigation, TrendingUp, CheckCircle, Lightbulb } from 'lucide-react';
+import { Activity, MapPin, Zap, RefreshCcw, Navigation, TrendingUp, CheckCircle, Lightbulb, ShieldCheck, Cpu } from 'lucide-react';
 
 const activityOptions = [
   {
     type: 'Walking',
     icon: <TrendingUp size={24} />,
     color: 'bg-emerald-500',
-    image: 'https://images.unsplash.com/photo-1552504829-9ac7eec9bf4d?auto=format&fit=crop&q=80&w=1000',
+    gradient: 'from-emerald-500 to-teal-600',
     fact: "Walking instead of driving saves around 0.15kg of CO2 per km. Every step counts towards a greener planet!"
   },
   {
     type: 'Cycling',
     icon: <Activity size={24} />,
     color: 'bg-teal-500',
-    image: 'https://images.unsplash.com/photo-1471506480208-91b3a4cc78be?auto=format&fit=crop&q=80&w=1000',
+    gradient: 'from-teal-500 to-cyan-600',
     fact: "Cycling is zero-emission transport! It saves roughly 0.25kg of CO2 per km compared to an average car."
   },
   {
     type: 'Public Transport',
     icon: <Navigation size={24} />,
     color: 'bg-cyan-600',
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=1000',
+    gradient: 'from-cyan-600 to-blue-600',
     fact: "Taking a bus or train reduces your carbon footprint by sharing the emission load, saving ~0.08kg CO2 per km."
   },
   {
     type: 'Recycling',
     icon: <RefreshCcw size={24} />,
     color: 'bg-lime-500',
-    image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=1000',
+    gradient: 'from-lime-500 to-emerald-500',
     fact: "Recycling a single plastic bottle can save enough energy to power a 60W light bulb for up to 6 hours!"
   },
   {
     type: 'Energy Saving',
     icon: <Zap size={24} />,
     color: 'bg-amber-500',
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=1000',
+    gradient: 'from-amber-500 to-orange-500',
     fact: "Turning off unused appliances and replacing bulbs translates to massive power grid savings and cuts coal-based emissions."
   }
 ];
@@ -48,7 +48,7 @@ const Activities = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
-  const { api } = useContext(AuthContext);
+  const { api, user } = useContext(AuthContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -115,21 +115,21 @@ const Activities = () => {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col gap-8 h-full bg-green-50/30 overflow-y-auto hide-scrollbar pb-10"
+      className="flex flex-col gap-10 h-full bg-[#f8fbfa] overflow-y-auto hide-scrollbar p-6 md:p-10"
     >
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-12">
 
         {/* Left Col: Selections */}
-        <div className="w-full md:w-1/2 flex flex-col gap-6">
+        <div className="w-full md:w-1/2 flex flex-col gap-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Log Activity</h1>
-            <p className="text-gray-500 mt-2">What eco-friendly action did you take today?</p>
+            <h1 className="text-4xl font-black text-neutral-900 tracking-tight">Data Capture</h1>
+            <p className="text-neutral-500 mt-2 text-sm font-medium">Select your eco-directive for analysis and reward calculation.</p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
             {activityOptions.map((option) => (
               <motion.div
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 key={option.type}
                 onClick={() => {
@@ -137,89 +137,107 @@ const Activities = () => {
                   setMessage('');
                   setError('');
                 }}
-                className={`relative cursor-pointer rounded-2xl overflow-hidden h-32 flex items-end p-4 transition-all shadow-sm ${selectedActivity.type === option.type ? 'ring-4 ring-offset-2 ring-emerald-500' : 'opacity-80 hover:opacity-100'}`}
+                className={`relative cursor-pointer rounded-3xl overflow-hidden h-36 flex items-end p-5 transition-all shadow-sm bg-gradient-to-br ${option.gradient} ${selectedActivity.type === option.type ? 'ring-4 ring-offset-4 ring-emerald-500 shadow-xl' : 'opacity-70 hover:opacity-100 hover:shadow-lg hover:ring-2 ring-neutral-200'}`}
               >
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${option.image}')` }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div className="relative z-10 flex flex-col gap-1 text-white">
-                  <div className="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                <div className="relative z-10 flex flex-col gap-2 text-white">
+                  <div className="bg-white/10 w-10 h-10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20">
                     {option.icon}
                   </div>
-                  <span className="font-bold text-sm tracking-wide bg-black/30 px-2 py-0.5 rounded-md inline-block max-w-max">{option.type}</span>
+                  <span className="font-extrabold text-xs tracking-widest uppercase bg-black/40 px-3 py-1 rounded-xl inline-block max-w-fit">{option.type}</span>
                 </div>
               </motion.div>
             ))}
           </div>
 
           {/* Educational Block */}
-          {selectedActivity && (
-            <motion.div
-              key={selectedActivity.type}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100 shadow-sm"
-            >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-full text-white ${selectedActivity.color} shadow-lg shadow-emerald-200`}>
-                  <Lightbulb size={24} />
+          <AnimatePresence mode="wait">
+            {selectedActivity && (
+              <motion.div
+                key={selectedActivity.type}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-emerald-900 rounded-[2rem] p-8 shadow-xl relative overflow-hidden group"
+              >
+                <div className="absolute top-[-50%] right-[-10%] w-48 h-48 bg-emerald-500/20 rounded-full blur-[50px] group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="flex items-start gap-5 relative z-10">
+                  <div className={`p-4 rounded-2xl text-white ${selectedActivity.color} shadow-lg flex-shrink-0 group-hover:rotate-12 transition-transform`}>
+                    <Lightbulb size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-emerald-400 mb-2 tracking-tight uppercase text-xs">Aeronautics & Impact</h3>
+                    <p className="text-emerald-50 text-sm leading-relaxed font-medium">{selectedActivity.fact}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-emerald-900 mb-1">Impact Knowledge</h3>
-                  <p className="text-emerald-800 text-sm leading-relaxed">{selectedActivity.fact}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Right Col: Form Entry */}
         <div className="w-full md:w-1/2">
-          <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/50 border border-gray-100 sticky top-0">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-between">
-              <span>Record {selectedActivity.type}</span>
-              <div className={`w-10 h-10 rounded-full text-white ${selectedActivity.color} flex items-center justify-center`}>
-                {selectedActivity.icon}
+          <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-neutral-100 sticky top-10">
+            <div className="flex justify-between items-start mb-10">
+              <div>
+                <h2 className="text-sm font-black text-neutral-400 uppercase tracking-[0.2em] mb-2">Telemetry Entry</h2>
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-black text-neutral-900">{selectedActivity.type}</span>
+                  <div className={`w-8 h-8 rounded-xl text-white ${selectedActivity.color} flex items-center justify-center shadow-md`}>
+                    {selectedActivity.icon}
+                  </div>
+                </div>
               </div>
-            </h2>
+              <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100 flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-500" />
+                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">AI Secured</span>
+              </div>
+            </div>
 
             <AnimatePresence>
               {message && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-green-100 text-green-700 p-4 rounded-xl mb-6 font-medium flex items-center gap-2">
-                  <CheckCircle size={20} /> {message}
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-emerald-500 text-white p-5 rounded-2xl mb-8 font-bold flex items-center gap-4 shadow-lg shadow-emerald-500/30 overflow-hidden">
+                  <CheckCircle size={24} className="flex-shrink-0" /> 
+                  <span className="text-sm">{message}</span>
                 </motion.div>
               )}
               {error && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl mb-6 font-medium">
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-rose-50 text-rose-600 border border-rose-200 p-5 rounded-2xl mb-8 font-bold text-sm overflow-hidden">
                   {error}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-8">
               {requiresDistance ? (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <label htmlFor="distance" className="block text-gray-700 font-bold mb-2 flex items-center gap-2">
-                    <MapPin size={18} className="text-emerald-500" /> Tracked Distance (km)
+                  <label htmlFor="distance" className="block text-neutral-800 font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-widest">
+                    <MapPin size={18} className="text-emerald-500" /> Total Distance Covered
                   </label>
-                  <input
-                    type="number"
-                    id="distance"
-                    className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-lg rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition py-3 px-4 font-semibold"
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
-                    placeholder="e.g. 5.5"
-                    min="0"
-                    step="0.1"
-                  />
-                  <p className="text-xs text-gray-400 mt-2 ml-1">Leave empty to auto-estimate based on average sessions.</p>
+                  <div className="relative group">
+                    <input
+                      type="number"
+                      id="distance"
+                      className="w-full bg-neutral-50 border-2 border-neutral-100 text-neutral-900 text-2xl rounded-2xl focus:ring-0 focus:border-emerald-500 outline-none transition-all py-5 px-6 font-black"
+                      value={distance}
+                      onChange={(e) => setDistance(e.target.value)}
+                      placeholder="0.0"
+                      min="0"
+                      step="0.1"
+                    />
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 text-neutral-400 font-black text-xl group-focus-within:text-emerald-500 transition-colors">KM</div>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-3 ml-2 flex items-center gap-1.5">
+                    <Cpu size={12} /> Auto-estimation protocol active
+                  </p>
                 </motion.div>
               ) : (
-                <div className="py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex flex-col items-center justify-center text-center px-4">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                    <CheckCircle className="text-emerald-500" size={24} />
+                <div className="py-12 bg-neutral-50 rounded-[2rem] border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center text-center px-6">
+                  <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-lg mb-4">
+                    <CheckCircle className="text-emerald-500" size={32} />
                   </div>
-                  <p className="text-gray-600 font-medium">No distance needed.</p>
-                  <p className="text-gray-400 text-sm mt-1">Ready to log your sustainable action!</p>
+                  <p className="text-neutral-900 font-black text-lg">No telemetry required</p>
+                  <p className="text-neutral-400 text-sm mt-1 font-medium">Ready for immediate submission protocol.</p>
                 </div>
               )}
 
@@ -228,9 +246,14 @@ const Activities = () => {
                 whileTap={{ scale: 0.98 }}
                 disabled={isSubmitting}
                 type="submit"
-                className={`w-full text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-colors flex justify-center items-center gap-2 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30'}`}
+                className={`w-full text-white font-black text-lg py-5 rounded-[2rem] shadow-xl transition-all flex justify-center items-center gap-3 tracking-wide uppercase ${isSubmitting ? 'bg-neutral-800 cursor-not-allowed hidden' : 'bg-neutral-900 hover:bg-black hover:shadow-2xl hover:translate-y-[-2px]'}`}
               >
-                {isSubmitting ? 'Recording...' : `Log ${selectedActivity.type}`}
+                {isSubmitting ? (
+                  <>
+                    <span className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    Authenticating...
+                  </>
+                ) : `Commit ${selectedActivity.type}`}
               </motion.button>
             </form>
           </div>
@@ -238,34 +261,48 @@ const Activities = () => {
 
       </div>
 
-      {/* Recent Logged History Cards (Replaces Table) */}
+      {/* Recent Logged History Cards */}
       <div className="mt-8">
-        <h3 className="text-xl font-bold text-gray-800 mb-6">Recent Logged History</h3>
+        <div className="flex items-center gap-4 mb-8">
+            <h3 className="text-2xl font-black text-neutral-900 tracking-tight">Activity Ledger</h3>
+            <span className="bg-neutral-200 text-neutral-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{userActivities.length} Records</span>
+        </div>
+        
         {userActivities.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center border border-gray-100 shadow-sm text-gray-500">
-            You haven't logged any eco-friendly actions yet. Start tracking today!
+          <div className="bg-white p-16 rounded-[2.5rem] text-center border border-neutral-100 shadow-sm flex flex-col items-center">
+            <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-6">
+                <Activity className="text-neutral-300" size={32} />
+            </div>
+            <p className="text-neutral-900 font-black text-xl mb-2">Ledger is Empty</p>
+            <p className="text-neutral-500 text-sm">Initiate your first eco-directive to populate data.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.isArray(userActivities) && userActivities.slice(0, 8).map((activity, i) => (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 key={activity._id}
-                className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                className="bg-white p-6 rounded-[2rem] border border-neutral-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group cursor-pointer"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="font-bold text-gray-800">{activity.activityType}</div>
-                  <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md max-w-fit">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="font-black text-neutral-900 tracking-tight text-lg">{activity.activityType}</div>
+                  <span className="text-[10px] font-black bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-1.5 rounded-xl uppercase tracking-widest shadow-sm">
                     +{activity.points} pts
                   </span>
                 </div>
-                <div className="flex-1 flex flex-col justify-end mt-4">
-                  <div className="text-3xl font-black text-emerald-500 mb-1">{activity.co2Saved.toFixed(1)}<span className="text-sm text-emerald-600/60 font-medium ml-1">kg</span></div>
-                  <div className="text-xs text-gray-400 font-medium tracking-wide uppercase">CO2 Redux</div>
-                  <div className="text-xs text-gray-400 font-medium mt-3 border-t border-gray-50 pt-3">
-                    {new Date(activity.createdAt).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                <div className="flex-1 flex flex-col justify-end">
+                  <div className="flex items-end gap-1.5 mb-2">
+                    <span className="text-4xl font-black text-emerald-500 leading-none tracking-tighter">{activity.co2Saved.toFixed(1)}</span>
+                    <span className="text-xs text-emerald-600/60 font-black uppercase tracking-widest mb-1">Kg CO2</span>
+                  </div>
+                  <div className="text-[10px] text-neutral-400 font-black tracking-[0.2em] uppercase border-t border-neutral-100 pt-4 mt-2 flex justify-between items-center group-hover:text-emerald-600 transition-colors">
+                    <span>Validation</span>
+                    <span className="flex items-center gap-1"><ShieldCheck size={12} /> {(activity.trustScore || 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="text-[10px] text-neutral-400 font-bold mt-2">
+                    {new Date(activity.createdAt).toLocaleDateString([], { weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' })}
                   </div>
                 </div>
               </motion.div>

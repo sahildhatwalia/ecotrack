@@ -21,7 +21,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80')" }}>
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fbfa] relative overflow-hidden">
+      {/* Decorative Blur */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[80px]"></div>
+      <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[60px]"></div>
       <div className="absolute inset-0 bg-green-900/30 backdrop-blur-sm"></div>
       <div className="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md relative z-10 border border-white/40">
         <h2 className="text-2xl font-bold mb-6 text-center">Login to EcoTrack</h2>

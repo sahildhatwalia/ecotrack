@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { LayoutDashboard, Activity, Trophy, Gift, User, LogOut, Leaf } from 'lucide-react';
+import { LayoutDashboard, Activity, Trophy, Gift, User, LogOut, Leaf, ShieldCheck } from 'lucide-react';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -11,66 +11,73 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { to: '/', icon: <LayoutDashboard size={20} className="mr-3" />, label: 'Dashboard' },
-    { to: '/activities', icon: <Activity size={20} className="mr-3" />, label: 'Analytics' }, // Relabelling activities to analytics based on image
-    { to: '/leaderboard', icon: <Trophy size={20} className="mr-3" />, label: 'Community' }, // Relabelling leaderboard to community
-    { to: '/rewards', icon: <Gift size={20} className="mr-3" />, label: 'Rewards' },
-    { to: '/profile', icon: <User size={20} className="mr-3" />, label: 'Settings' },
+    { to: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+    { to: '/activities', icon: <Activity size={20} />, label: 'Analytics' }, 
+    { to: '/leaderboard', icon: <Trophy size={20} />, label: 'Community' }, 
+    { to: '/rewards', icon: <Gift size={20} />, label: 'Rewards' },
+    { to: '/profile', icon: <User size={20} />, label: 'Settings' },
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-full flex flex-col pt-6 pb-4">
-      {/* Logo Area */}
-      <div className="px-6 mb-8 flex items-center text-green-600">
-        <svg className="w-7 h-7 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-        </svg>
-        <span className="text-2xl font-bold tracking-tight text-gray-800">EcoTrack</span>
+    <div className="w-72 bg-white border-r border-neutral-100 h-full flex flex-col pt-10 pb-6 shadow-[10px_0_40px_rgba(0,0,0,0.02)] relative z-50">
+      {/* Premium Logo Area */}
+      <div className="px-8 mb-12 flex items-center group cursor-pointer">
+        <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:rotate-12 transition-all duration-500">
+            <Leaf size={22} className="text-white" />
+        </div>
+        <div className="ml-4">
+            <span className="text-2xl font-black tracking-tighter text-neutral-900 block">EcoTrack</span>
+            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] leading-none">v2.4 Production</span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-6 space-y-2">
         {navItems.map((item) => (
             <NavLink 
                 key={item.to}
                 to={item.to} 
                 className={({ isActive }) => 
-                    `flex items-center py-3 px-4 rounded-xl transition duration-200 font-medium ${
+                    `flex items-center py-4 px-5 rounded-2xl transition-all duration-300 font-bold group ${
                         isActive 
-                        ? 'bg-green-500 text-white shadow-sm shadow-green-200' 
-                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-neutral-900 text-white shadow-2xl shadow-neutral-200' 
+                        : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-900'
                     }`
                 } 
                 end={item.to === '/'}
             >
-                {item.icon}
-                {item.label}
+                <div className={`mr-4 transition-transform group-hover:scale-110`}>
+                    {item.icon}
+                </div>
+                <span className="text-sm tracking-tight">{item.label}</span>
+                {isActive && (
+                    <div className="ml-auto w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
+                )}
             </NavLink>
         ))}
       </nav>
 
-      {/* Daily Challenge Widget */}
-      <div className="px-4 mt-auto mb-4">
-        <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-emerald-200 rounded-full opacity-50 blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-          <div className="flex items-center gap-2 mb-2 relative z-10">
-            <Leaf size={16} className="text-emerald-500" />
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Daily Challenge</span>
-          </div>
-          <p className="text-sm font-medium text-emerald-900 relative z-10">
-            Go Meatless today to cut 2.5kg of CO2! 🌱
-          </p>
+      {/* AI Trust Indicator (Sidebar mini-version) */}
+      <div className="px-6 mb-8 mt-auto">
+        <div className="bg-neutral-50 rounded-3xl p-5 border border-neutral-100 relative overflow-hidden flex items-center gap-4">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${user?.trustScore >= 80 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                <ShieldCheck size={20} />
+            </div>
+            <div>
+                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-1">AI Verified</p>
+                <p className="text-xs font-black text-neutral-900">{user?.trustScore || 100}% Trust</p>
+            </div>
         </div>
       </div>
 
       {/* Logout */}
-      <div className="px-4 pb-2">
+      <div className="px-6">
         <button 
             onClick={handleLogout} 
-            className="flex items-center w-full py-3 px-4 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 font-medium transition duration-200"
+            className="flex items-center w-full py-4 px-5 rounded-2xl text-neutral-400 hover:bg-rose-50 hover:text-rose-600 font-bold transition-all duration-300 group"
         >
-          <LogOut size={20} className="mr-3" />
-          Logout
+          <LogOut size={20} className="mr-4 group-hover:translate-x-1 transition-transform" />
+          <span className="text-sm">Terminate Session</span>
         </button>
       </div>
     </div>

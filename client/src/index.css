@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary: #10b981;
+  --secondary: #003d29;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  @apply antialiased text-neutral-900 bg-[#f8fbfa];
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+  
+  .mesh-gradient {
+    background-color: #003d29;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(161, 84%, 44%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(158, 64%, 52%, 0.1) 0px, transparent 50%);
+  }
+
+  .premium-card {
+    @apply bg-white rounded-[2rem] border border-neutral-100 shadow-sm hover:shadow-2xl transition-all duration-500;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::selection {
+  @apply bg-emerald-500 text-white;
+}
