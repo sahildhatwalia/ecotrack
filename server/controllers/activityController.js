@@ -1,6 +1,8 @@
 const Activity = require('../models/Activity');
 const User = require('../models/User');
 const { validateActivity } = require('../utils/fraudDetection');
+const { sendLowTrustAlert, sendMilestoneAlert } = require('../utils/notifications');
+
 
 // @desc    Log an activity
 // @route   POST /api/activities
@@ -44,6 +46,10 @@ exports.logActivity = async (req, res, next) => {
         if (!validation.isValid) {
             user.trustScore = validation.trustScore;
             await user.save();
+            
+            // --- ALERT INTEGRATION ---
+            sendLowTrustAlert(user);
+
             return res.status(403).json({
                 success: false,
                 message: 'Activity flagged for suspicious patterns. Reward withheld.',
@@ -52,54 +58,84 @@ exports.logActivity = async (req, res, next) => {
             });
         }
 
-    // CO2 saved and points calculation (simple example)
-    let co2Saved = 0;
-    let points = 0;
+    // CO2 saved and points calculation (Refined Coefficients)
+    // Values based on average displacement from internal combustion engine vehicles (approx 0.2kg/km)
+    const COEFFICIENTS = {
+        'Walking': { co2: 0.16, points: 15 },
+        'Running': { co2: 0.18, points: 25 },
+        'Cycling': { co2: 0.21, points: 20 },
+        'Public Transport': { co2: 0.10, points: 8 },
+        'EV Trip': { co2: 0.06, points: 5 },
+        'Recycling': { co2: 1.5, points: 30 },
+        'Energy Saving': { co2: 3.0, points: 50 }
+    };
 
-    switch (activityType) {
-        case 'Walking':
-            co2Saved = distance * 0.15; // kg of CO2 saved per km
-            points = Math.floor(distance * 12);
-            break;
-        case 'Public Transport':
-            co2Saved = distance * 0.08;
-            points = Math.floor(distance * 5);
-            break;
-        case 'Cycling':
-            co2Saved = distance * 0.25;
-            points = Math.floor(distance * 20);
-            break;
-        case 'Recycling':
-            co2Saved = 1.2; // kg of CO2 saved per recycling action
-            points = 25;
-            break;
-        case 'Energy Saving':
-            co2Saved = 2.5; // kg of CO2 saved per energy saving action
-            points = 40;
-            break;
-        default:
-            return res.status(400).json({ success: false, message: 'Invalid activity type' });
+    let baseCalc = COEFFICIENTS[activityType] || { co2: 0.1, points: 10 };
+    let co2Saved = (activityType === 'Recycling' || activityType === 'Energy Saving') 
+        ? baseCalc.co2 
+        : distance * baseCalc.co2;
+    
+    let basePoints = (activityType === 'Recycling' || activityType === 'Energy Saving')
+        ? baseCalc.points
+        : Math.floor(distance * baseCalc.points);
+
+    // --- SPECIALIZED TRACKING MODULES ---
+    
+    let multiplier = 1.0;
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    // 1. Peak Hour Impact Module (Reducing urban congestion)
+    const isPeakHour = (currentHour >= 8 && currentHour <= 10) || (currentHour >= 17 && currentHour <= 19);
+    if (isPeakHour) {
+        multiplier += 0.25; // 25% bonus for reducing peak traffic
     }
 
+    // 2. Weather Hardship Module (Data from metadata)
+    if (metadata?.weather?.toLowerCase().includes('rain') || metadata?.weather?.toLowerCase().includes('snow')) {
+        multiplier += 0.15; // 15% bonus for eco-effort in bad weather
+    }
+
+    // 3. User Consistency Streak Module
+    const lastActivity = user.lastActivities[user.lastActivities.length - 1];
+    if (lastActivity) {
+        const timeDiff = now - new Date(lastActivity.date);
+        const hoursDiff = timeDiff / (1000 * 60 * 60);
+        if (hoursDiff < 24) {
+            multiplier += 0.1; // 10% daily consistency boost
+        }
+    }
+
+    const finalPoints = Math.floor(basePoints * multiplier);
+
         // Update activity record with final values
-        activity.co2Saved = co2Saved;
-        activity.points = points;
+        activity.co2Saved = Math.round(co2Saved * 100) / 100;
+        activity.points = finalPoints;
+        activity.metadata.multipliers = {
+            peakHour: isPeakHour,
+            weatherBonus: multiplier > 1.25, // simple flag
+            totalMultiplier: multiplier
+        };
         await activity.save();
 
         // --- 2. Update User Stats & Behavior Data ---
         const oldPoints = user.points;
-        const newPoints = oldPoints + points;
+        const newPoints = oldPoints + finalPoints;
         
         user.carbonFootprint += co2Saved;
         user.points = newPoints;
         user.trustScore = validation.trustScore;
 
         // Behavior tracking: store last 5 activities
-        user.lastActivities.push({ type: activityType, distance, date: Date.now() });
-        if (user.lastActivities.length > 5) user.lastActivities.shift();
+        user.lastActivities.push({ 
+            type: activityType, 
+            distance: Math.round(distance * 10) / 10, 
+            date: now 
+        });
+        if (user.lastActivities.length > 10) user.lastActivities.shift();
 
         // Daily activity capping/tracking
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = now.toISOString().split('T')[0];
         const currentCount = user.dailyActivityCount.get(todayStr) || 0;
         user.dailyActivityCount.set(todayStr, currentCount + 1);
 
@@ -109,12 +145,17 @@ exports.logActivity = async (req, res, next) => {
 
         let milestoneAwarded = false;
         if (newMilestone > oldMilestone) {
-            const voucherCode = 'MILE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const voucherCode = 'ECO-ELITE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
             user.vouchers.push({
-                rewardName: `Milestone Reward (${newMilestone * 500} pts)`,
+                rewardName: `Impact Milestone (${newMilestone * 500} pts)`,
                 code: voucherCode,
-                dateRedeemed: Date.now()
+                dateRedeemed: now,
+                bonusApplied: true
             });
+            
+            // --- ALERT INTEGRATION ---
+            sendMilestoneAlert(user, voucherCode);
+            
             milestoneAwarded = true;
         }
 
@@ -123,6 +164,10 @@ exports.logActivity = async (req, res, next) => {
         res.status(201).json({
             success: true,
             data: activity,
+            multipliers: {
+                total: multiplier,
+                peak: isPeakHour
+            },
             milestone: milestoneAwarded
         });
     } catch (err) {
@@ -146,3 +191,4 @@ exports.getActivities = async (req, res, next) => {
         next(err);
     }
 };
+

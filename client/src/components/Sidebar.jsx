@@ -37,6 +37,7 @@ const Sidebar = () => {
             <NavLink 
                 key={item.to}
                 to={item.to} 
+                end={item.to === '/'}
                 className={({ isActive }) => 
                     `flex items-center py-4 px-5 rounded-2xl transition-all duration-300 font-bold group ${
                         isActive 
@@ -44,17 +45,21 @@ const Sidebar = () => {
                         : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-900'
                     }`
                 } 
-                end={item.to === '/'}
             >
-                <div className={`mr-4 transition-transform group-hover:scale-110`}>
-                    {item.icon}
-                </div>
-                <span className="text-sm tracking-tight">{item.label}</span>
-                {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
-                )}
+              {({ isActive }) => (
+                <>
+                  <div className={`mr-4 transition-transform group-hover:scale-110`}>
+                      {item.icon}
+                  </div>
+                  <span className="text-sm tracking-tight">{item.label}</span>
+                  {isActive && (
+                      <div className="ml-auto w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
+                  )}
+                </>
+              )}
             </NavLink>
         ))}
+
       </nav>
 
       {/* AI Trust Indicator (Sidebar mini-version) */}
