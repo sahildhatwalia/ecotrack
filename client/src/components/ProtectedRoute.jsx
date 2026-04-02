@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     return <div>Loading...</div>; // Or a spinner component
   }
 
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/welcome" />;
 };
 
 export default ProtectedRoute;

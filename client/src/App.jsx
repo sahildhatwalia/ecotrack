@@ -5,15 +5,15 @@ import Activities from './pages/Activities';
 import Leaderboard from './pages/Leaderboard';
 import Rewards from './pages/Rewards';
 import Profile from './pages/Profile';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
+import Welcome from './pages/Welcome';
 
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/login" element={<Welcome />} />
+      <Route path="/signup" element={<Welcome />} />
       <Route
         path="/"
         element={
