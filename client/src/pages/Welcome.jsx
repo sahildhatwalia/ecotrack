@@ -136,12 +136,37 @@ const Welcome = () => {
 
       {/* Right Side: Auth Form */}
       <div className="flex-1 flex flex-col justify-center items-center p-8 bg-[#f8fbfa] relative overflow-hidden">
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center gap-2 mb-12 self-start">
-          <div className="p-2 bg-emerald-500 rounded-xl">
-            <Leaf className="w-6 h-6 text-white" />
+        {/* Mobile Header and Hero */}
+        <div className="md:hidden flex flex-col gap-8 mb-10 w-full max-w-md">
+          <div className="flex items-center gap-2 self-start">
+            <div className="p-2 bg-emerald-500 rounded-xl">
+              <Leaf className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-[#003d29]">EcoTrack</h1>
           </div>
-          <h1 className="text-2xl font-extrabold text-[#003d29]">EcoTrack</h1>
+          
+          <div className="bg-[#003d29] p-8 rounded-[2rem] text-white overflow-hidden relative">
+            <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-emerald-400/20 rounded-full blur-[40px]"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold leading-tight mb-4 text-emerald-400">
+                Small Steps, <br/>Big Impact.
+              </h2>
+              <p className="text-emerald-50/70 text-sm leading-relaxed mb-6">
+                Join our mission to save the planet. Track your eco-actions, earn points, and make a real difference today.
+              </p>
+              
+              <div className="flex items-center gap-3 bg-white/10 p-3 rounded-2xl border border-white/10 backdrop-blur-sm">
+                 <div className="flex -space-x-2">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="w-6 h-6 rounded-full border-2 border-[#003d29] bg-neutral-200 overflow-hidden">
+                        <img src={`https://i.pravatar.cc/100?u=${i+10}`} alt="user" />
+                      </div>
+                    ))}
+                 </div>
+                 <span className="text-[10px] font-bold text-emerald-50/80 tracking-widest uppercase">2k+ People Joined</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <motion.div 

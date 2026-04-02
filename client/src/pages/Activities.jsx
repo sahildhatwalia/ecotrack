@@ -283,7 +283,7 @@ const Activities = () => {
                 whileTap={{ scale: 0.98 }}
                 disabled={isSubmitting}
                 type="submit"
-                className={`w-full text-white font-black text-lg py-5 rounded-[2rem] shadow-xl transition-all flex justify-center items-center gap-3 tracking-wide uppercase ${isSubmitting ? 'bg-neutral-800 cursor-not-allowed hidden' : 'bg-neutral-900 hover:bg-black hover:shadow-2xl hover:translate-y-[-2px]'}`}
+                className={`w-full text-white font-black text-lg py-5 rounded-[2rem] shadow-xl transition-all flex justify-center items-center gap-3 tracking-wide uppercase ${isSubmitting ? 'bg-neutral-800 cursor-not-allowed' : 'bg-neutral-900 hover:bg-black hover:shadow-2xl hover:translate-y-[-2px]'}`}
               >
                 {isSubmitting ? (
                   <>

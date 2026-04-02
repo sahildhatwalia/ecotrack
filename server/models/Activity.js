@@ -9,7 +9,7 @@ const ActivitySchema = new mongoose.Schema({
   activityType: {
     type: String,
     required: true,
-    enum: ['Walking', 'Public Transport', 'Cycling', 'Recycling', 'Energy Saving']
+    enum: ['Walking', 'Running', 'Cycling', 'Public Transport', 'EV Trip', 'Recycling', 'Energy Saving']
   },
   co2Saved: {
     type: Number,
