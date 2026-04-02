@@ -10,21 +10,35 @@ const activityOptions = [
     icon: <TrendingUp size={24} />,
     color: 'bg-emerald-500',
     gradient: 'from-emerald-500 to-teal-600',
-    fact: "Walking instead of driving saves around 0.15kg of CO2 per km. Every step counts towards a greener planet!"
+    fact: "Walking instead of driving saves around 0.16kg of CO2 per km. Every step counts towards a greener planet!"
+  },
+  {
+    type: 'Running',
+    icon: <Activity size={24} />,
+    color: 'bg-rose-500',
+    gradient: 'from-rose-500 to-orange-600',
+    fact: "Running is a high-intensity eco-action! It burns calories and saves 0.18kg of CO2 per km."
   },
   {
     type: 'Cycling',
     icon: <Activity size={24} />,
     color: 'bg-teal-500',
     gradient: 'from-teal-500 to-cyan-600',
-    fact: "Cycling is zero-emission transport! It saves roughly 0.25kg of CO2 per km compared to an average car."
+    fact: "Cycling is zero-emission transport! It saves roughly 0.21kg of CO2 per km compared to an average car."
   },
   {
     type: 'Public Transport',
     icon: <Navigation size={24} />,
     color: 'bg-cyan-600',
     gradient: 'from-cyan-600 to-blue-600',
-    fact: "Taking a bus or train reduces your carbon footprint by sharing the emission load, saving ~0.08kg CO2 per km."
+    fact: "Taking a bus or train reduces your carbon footprint significantly, saving ~0.10kg CO2 per km."
+  },
+  {
+    type: 'EV Trip',
+    icon: <Zap size={24} />,
+    color: 'bg-indigo-500',
+    gradient: 'from-indigo-500 to-purple-600',
+    fact: "Electric Vehicles save ~0.06kg of CO2 per km compared to fossil-fuel cars by utilizing cleaner energy grids."
   },
   {
     type: 'Recycling',
@@ -38,13 +52,14 @@ const activityOptions = [
     icon: <Zap size={24} />,
     color: 'bg-amber-500',
     gradient: 'from-amber-500 to-orange-500',
-    fact: "Turning off unused appliances and replacing bulbs translates to massive power grid savings and cuts coal-based emissions."
+    fact: "Precision energy management cuts coal-based emissions and earns you premium points multipliers today."
   }
 ];
 
 const Activities = () => {
   const [selectedActivity, setSelectedActivity] = useState(activityOptions[0]);
   const [distance, setDistance] = useState('');
+  const [weatherSim, setWeatherSim] = useState('Clear');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
@@ -73,10 +88,10 @@ const Activities = () => {
 
     try {
       // Simulate real sensor data for development
-      // In a real mobile app, these would come from Capacitor/CoreMotion/Google Play Services
       const simulatedMetadata = {
-        gpsAccuracy: Math.floor(Math.random() * 40) + 5, // 5m to 45m
+        gpsAccuracy: Math.floor(Math.random() * 40) + 5,
         isMockLocation: false,
+        weather: weatherSim,
         topSpeed: selectedActivity.type === 'Walking' ? 6 : (selectedActivity.type === 'Cycling' ? 22 : 60),
         stepCount: selectedActivity.type === 'Walking' ? (distance ? parseFloat(distance) * 1300 : Math.random() * 2000) : 0,
         avgStepFrequency: selectedActivity.type === 'Walking' ? 1.8 : 0,
@@ -88,7 +103,10 @@ const Activities = () => {
         metadata: simulatedMetadata
       });
 
-      setMessage(`Activity logged! You saved ${res.data.data.co2Saved.toFixed(2)} kg CO2 and earned ${res.data.data.points} points.`);
+      const { co2Saved, points } = res.data.data;
+      const { multipliers } = res.data;
+
+      setMessage(`Log Confirmed! Saved ${co2Saved}kg CO2 and earned ${points} pts (Multiplier: x${multipliers.total}${multipliers.peak ? ' + Peak Hour' : ''})`);
       setDistance('');
       fetchActivities(); // Refresh activities list
 
@@ -104,9 +122,10 @@ const Activities = () => {
       setError(err.response?.data?.message || 'Failed to log activity.');
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setMessage(''), 6000); // Clear success msg
+      setTimeout(() => setMessage(''), 10000); // Clear success msg
     }
   };
+
 
   const requiresDistance = ['Walking', 'Public Transport', 'Cycling'].includes(selectedActivity.type);
 
@@ -230,6 +249,24 @@ const Activities = () => {
                   <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-3 ml-2 flex items-center gap-1.5">
                     <Cpu size={12} /> Auto-estimation protocol active
                   </p>
+                  
+                  <div className="mt-6">
+                    <label className="block text-neutral-800 font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-widest">
+                       <Navigation size={18} className="text-emerald-500" /> Climate Conditions
+                    </label>
+                    <div className="flex gap-4">
+                      {['Clear', 'Rain', 'Snow'].map((w) => (
+                        <button
+                          key={w}
+                          type="button"
+                          onClick={() => setWeatherSim(w)}
+                          className={`flex-1 py-3 rounded-xl font-bold text-xs transition-all border ${weatherSim === w ? 'bg-neutral-900 text-white border-neutral-900 shadow-lg' : 'bg-neutral-50 text-neutral-400 border-neutral-100'}`}
+                        >
+                          {w === 'Clear' ? '☀️' : w === 'Rain' ? '🌧️' : '❄️'} {w}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </motion.div>
               ) : (
                 <div className="py-12 bg-neutral-50 rounded-[2rem] border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center text-center px-6">
@@ -256,6 +293,8 @@ const Activities = () => {
                 ) : `Commit ${selectedActivity.type}`}
               </motion.button>
             </form>
+
+
           </div>
         </div>
 

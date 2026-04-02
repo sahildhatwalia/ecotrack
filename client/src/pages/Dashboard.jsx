@@ -246,6 +246,27 @@ const Dashboard = () => {
                     
                     {/* Big Production Ad */}
                     <AdBanner className="mt-4" />
+
+                    {/* AI Forecasting Widget (NEW) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                        <div className="bg-emerald-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                           <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-emerald-500/20 rounded-full blur-[40px] group-hover:scale-125 transition-transform duration-700"></div>
+                           <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-4 relative z-10">AI Projection (Next 30d)</h4>
+                           <div className="flex items-baseline gap-3 relative z-10">
+                             <span className="text-5xl font-black tracking-tighter">+{analytics?.forecast?.projectedNextMonth || '---'}</span>
+                             <span className="text-sm font-bold text-emerald-300">KG CO2</span>
+                           </div>
+                           <p className="text-xs text-emerald-100/60 mt-4 font-medium relative z-10">Based on your daily average of {analytics?.forecast?.dailyAverage || 0} kg.</p>
+                        </div>
+
+                        <div className="bg-white rounded-[2rem] p-8 border border-neutral-100 shadow-sm flex flex-col justify-center">
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="p-2 bg-amber-50 text-amber-500 rounded-lg"><Bell size={18} /></span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Optimization Tip</span>
+                            </div>
+                            <p className="text-neutral-800 font-bold leading-relaxed">{analytics?.forecast?.recommendation || "Maintain your current activity level to stay on track for your monthly goal!"}</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right Column (Side Widgets) */}
@@ -318,7 +339,7 @@ const Dashboard = () => {
                     <AdBanner type="sidebar" className="mt-auto" />
                 </div>
             </div>
-         </motion.div>
+        </motion.div>
     );
 };
 
