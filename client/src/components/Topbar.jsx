@@ -1,12 +1,16 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Bell, User, Leaf, Heart, Sun, Search, ShieldCheck } from 'lucide-react';
+import { Bell, User, Leaf, Heart, Sun, Search, ShieldCheck, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthContext from '../context/AuthContext';
+import { useSearch } from '../context/SearchContext';
 
 const Topbar = () => {
   const { user } = useContext(AuthContext);
+  const { searchTerm, setSearchTerm, isSearchActive, setIsSearchActive } = useSearch();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
 
   const motivationalThoughts = [
     { id: 1, icon: <Leaf className="text-emerald-500 w-4 h-4" />, title: "Pattern Analysis", text: "AI verified your last 5 activities as authentic. +50 Trust Bonus!" },
@@ -18,6 +22,9 @@ const Topbar = () => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowNotifications(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -33,14 +40,57 @@ const Topbar = () => {
            <span className="text-xl font-black tracking-tighter text-neutral-900">EcoTrack</span>
         </div>
 
-        {/* Search Bar - Aesthetic Only */}
-        <div className="hidden md:flex items-center bg-neutral-50 border border-neutral-100 px-4 py-2 rounded-2xl w-96 group focus-within:border-emerald-200 transition-all">
-            <Search size={18} className="text-neutral-300 group-focus-within:text-emerald-500 transition-colors" />
-            <input 
-                type="text" 
-                placeholder="Search rewards or insights..." 
-                className="bg-transparent border-none outline-none text-sm ml-3 w-full font-medium text-neutral-600 placeholder:text-neutral-300"
-            />
+        {/* Search Bar - Functional */}
+        <div className="relative" ref={searchRef}>
+          <div className="hidden md:flex items-center bg-neutral-50/50 backdrop-blur-sm border border-neutral-100 px-5 py-2.5 rounded-[1.5rem] w-96 group focus-within:border-emerald-400 focus-within:bg-white focus-within:shadow-[0_10px_40px_rgba(16,185,129,0.1)] transition-all duration-300">
+              <Search size={18} className="text-neutral-300 group-focus-within:text-emerald-500 transition-colors" />
+              <input 
+                  type="text" 
+                  placeholder="Search rewards, actions or intel..." 
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setShowResults(e.target.value.length > 0);
+                  }}
+                  onFocus={() => searchTerm.length > 0 && setShowResults(true)}
+                  className="bg-transparent border-none outline-none text-sm ml-3 w-full font-semibold text-neutral-700 placeholder:text-neutral-300"
+              />
+          </div>
+
+          <AnimatePresence>
+            {showResults && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute top-full left-0 mt-3 w-full bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-neutral-100 z-50 overflow-hidden"
+              >
+                <div className="p-6">
+                  <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Search Intel</p>
+                  <div className="space-y-2">
+                    {['Rewards', 'Activities', 'Community'].map((item) => (
+                      <button 
+                        key={item}
+                        className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 group/item transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-xs group-hover/item:bg-emerald-500 group-hover/item:text-white transition-all">
+                            {item[0]}
+                          </div>
+                          <span className="text-sm font-bold text-neutral-600 group-hover/item:text-neutral-900">{item}</span>
+                        </div>
+                        <ChevronRight size={14} className="text-neutral-300 group-hover/item:text-emerald-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-neutral-50 px-6 py-4 flex items-center justify-between">
+                  <p className="text-[10px] font-bold text-neutral-400">Press ENTER for global search</p>
+                  <Search size={12} className="text-neutral-300" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
       
@@ -98,7 +148,7 @@ const Topbar = () => {
                 <p className="text-xs font-black text-neutral-900 leading-none mb-1">{user?.username || 'Eco User'}</p>
                 <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest leading-none">Pro Member</p>
             </div>
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neutral-800 to-black text-white flex items-center justify-center font-black text-lg shadow-lg border-2 border-white group-hover:rotate-6 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-900 text-white flex items-center justify-center font-black text-lg shadow-lg border-2 border-white group-hover:rotate-12 group-hover:scale-110 transition-all duration-300">
             {user?.username ? user.username[0].toUpperCase() : <User size={20} />}
           </div>
         </div>

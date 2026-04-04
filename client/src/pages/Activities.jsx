@@ -3,6 +3,7 @@ import AuthContext from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Activity, MapPin, Zap, RefreshCcw, Navigation, TrendingUp, CheckCircle, Lightbulb, ShieldCheck, Cpu } from 'lucide-react';
+import { useSearch } from '../context/SearchContext';
 
 const activityOptions = [
   {
@@ -64,6 +65,7 @@ const Activities = () => {
   const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
   const { api, user } = useContext(AuthContext);
+  const { searchTerm } = useSearch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -134,7 +136,7 @@ const Activities = () => {
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col gap-10 h-full bg-[#f8fbfa] overflow-y-auto hide-scrollbar p-6 md:p-10"
+      className="flex flex-col gap-10 h-full bg-[#f8fbfa] overflow-y-auto hide-scrollbar p-6 md:p-10 perspective-container"
     >
       <div className="flex flex-col md:flex-row gap-12">
 
@@ -316,14 +318,17 @@ const Activities = () => {
             <p className="text-neutral-500 text-sm">Initiate your first eco-directive to populate data.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.isArray(userActivities) && userActivities.slice(0, 8).map((activity, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 perspective-container">
+            {Array.isArray(userActivities) && userActivities
+              .filter(a => a.activityType.toLowerCase().includes(searchTerm.toLowerCase()))
+              .slice(0, 8).map((activity, i) => (
               <motion.div
+                layout
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 key={activity._id}
-                className="bg-white p-6 rounded-[2rem] border border-neutral-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group cursor-pointer"
+                className="bg-white p-6 rounded-[2rem] border border-neutral-100 shadow-sm hover-3d transition-all flex flex-col group cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-6">
                   <div className="font-black text-neutral-900 tracking-tight text-lg">{activity.activityType}</div>

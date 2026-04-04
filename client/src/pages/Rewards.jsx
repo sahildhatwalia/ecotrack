@@ -1,9 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import AdBanner from '../components/AdBanner';
+import { useSearch } from '../context/SearchContext';
+import { motion } from 'framer-motion';
 
 const Rewards = () => {
   const { api, user, loadUser } = useContext(AuthContext);
+  const { searchTerm } = useSearch();
   const [rewards, setRewards] = useState([]);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -41,9 +44,12 @@ const Rewards = () => {
     }
   };
 
-  const filteredRewards = filter === 'All' 
-    ? rewards 
-    : rewards.filter(r => r.category === filter);
+  const filteredRewards = rewards.filter(r => {
+    const matchesFilter = filter === 'All' || r.category === filter;
+    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          r.brand?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-neutral-50 p-4 md:p-8">
@@ -154,9 +160,13 @@ const Rewards = () => {
                 <button onClick={() => setFilter('All')} className="mt-8 text-emerald-600 font-bold hover:underline">View All Directives</button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 perspective-container">
                 {filteredRewards.map((reward) => (
-                  <div key={reward._id} className="group bg-white rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-neutral-100 overflow-hidden flex flex-col">
+                  <motion.div 
+                    layout
+                    key={reward._id} 
+                    className="group bg-white rounded-[2.5rem] shadow-sm hover-3d transition-all duration-500 border border-neutral-100 overflow-hidden flex flex-col"
+                  >
                     <div className="p-8 pb-0">
                       <div className="flex justify-between items-start mb-6">
                         <div className="w-16 h-16 bg-neutral-50 rounded-3xl flex items-center justify-center p-3 border border-neutral-100 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
@@ -209,7 +219,7 @@ const Rewards = () => {
                             ) : (user?.points || 0) >= reward.pointsRequired ? 'Claim Now' : 'Insufficient Points'}
                         </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}

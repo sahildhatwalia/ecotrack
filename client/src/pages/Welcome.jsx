@@ -55,12 +55,24 @@ const Welcome = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#fdfdfd] overflow-hidden">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#fdfdfd] overflow-hidden perspective-container">
       {/* Left Side: Marketing/Hero */}
-      <div className="hidden md:flex md:w-1/2 relative bg-[#003d29] text-white p-12 flex-col justify-between overflow-hidden">
+      <div className="hidden md:flex md:w-1/2 relative bg-gradient-to-br from-[#004d39] via-[#003d29] to-[#012a1d] text-white p-12 flex-col justify-between overflow-hidden">
         {/* Background Decorative Elements */}
-        <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-emerald-400/20 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[80px]"></div>
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
+          transition={{ duration: 10, repeat: Infinity }}
+          className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-400/30 rounded-full blur-[120px]"
+        ></motion.div>
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], rotate: [0, -10, 0] }}
+          transition={{ duration: 15, repeat: Infinity, delay: 1 }}
+          className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-teal-500/20 rounded-full blur-[100px]"
+        ></motion.div>
+        
+        {/* Floating Joyful Icons */}
+        <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-[20%] right-[15%] text-emerald-300 opacity-20"><Leaf size={60} /></motion.div>
+        <motion.div animate={{ y: [0, 20, 0] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }} className="absolute bottom-[20%] left-[10%] text-emerald-200 opacity-20"><ShieldCheck size={80} /></motion.div>
         
         <div className="relative z-10">
           <motion.div 
@@ -80,11 +92,12 @@ const Welcome = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-5xl font-bold leading-tight mb-6">
-              Empower Your Journey to <span className="text-emerald-400">Sustainability</span>
+            <h2 className="text-6xl font-black leading-tight mb-6 tracking-tight">
+              Let's Make Our <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-100">Planet Smile!</span> 😊
             </h2>
-            <p className="text-xl text-emerald-50/80 max-w-lg mb-10 leading-relaxed">
-              Join thousands of eco-conscious users making a real difference. Track activities, compete on leaderboards, and turn your sustainable habits into tangible rewards.
+            <p className="text-xl text-emerald-50/80 max-w-lg mb-12 leading-relaxed font-medium">
+              Join the happiest community on Earth! Track your eco-acts, spread positivity, and watch your impact grow like a beautiful garden.
             </p>
           </motion.div>
 
@@ -95,14 +108,15 @@ const Welcome = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 + idx * 0.1 }}
-                className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm"
+                whileHover={{ scale: 1.05 }}
+                className="flex items-start gap-4 p-5 rounded-[2.5rem] bg-white/10 border border-white/20 backdrop-blur-md hover-3d cursor-default group"
               >
-                <div className="p-2 bg-white/10 rounded-lg shrink-0">
-                  {feature.icon}
+                <div className="p-3 bg-emerald-500 rounded-2xl shrink-0 shadow-lg group-hover:rotate-12 transition-transform">
+                  {React.cloneElement(feature.icon, { className: "w-6 h-6 text-white" })}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">{feature.title}</h3>
-                  <p className="text-emerald-50/60 text-sm">{feature.description}</p>
+                  <h3 className="font-extrabold text-xl mb-1">{feature.title}</h3>
+                  <p className="text-emerald-50/70 text-sm font-medium">{feature.description}</p>
                 </div>
               </motion.div>
             ))}

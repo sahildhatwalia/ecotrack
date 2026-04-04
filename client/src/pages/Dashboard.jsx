@@ -154,14 +154,14 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 perspective-container">
                 {/* Left Column (Main Charts) */}
                 <div className="xl:col-span-2 flex flex-col gap-8">
                     {/* Top row in Left Column: Score & Recent */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
                         {/* Carbon Score Gauge Widget */}
-                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 flex flex-col relative overflow-hidden group">
+                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 flex flex-col relative overflow-hidden group hover-3d">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <TrendingUp size={80} />
                             </div>
@@ -191,7 +191,7 @@ const Dashboard = () => {
                         </div>
 
                         {/* Recent Activities Widget */}
-                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100">
+                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 hover-3d">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">Live Activity Feed</h3>
                                 <Link to="/activities" className="text-neutral-400 hover:text-neutral-900 transition-colors">
@@ -221,7 +221,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* Monthly Savings Area Chart */}
-                    <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-neutral-100">
+                    <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-neutral-100 hover-3d">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                             <div>
                                 <h3 className="text-xl font-black text-neutral-900 tracking-tight">Eco Impact Velocity</h3>
@@ -249,7 +249,7 @@ const Dashboard = () => {
 
                     {/* AI Forecasting Widget (NEW) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                        <div className="bg-emerald-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                        <div className="bg-emerald-900 rounded-[2rem] p-8 text-white relative overflow-hidden group hover-3d">
                            <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-emerald-500/20 rounded-full blur-[40px] group-hover:scale-125 transition-transform duration-700"></div>
                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-4 relative z-10">AI Projection (Next 30d)</h4>
                            <div className="flex items-baseline gap-3 relative z-10">
@@ -259,7 +259,7 @@ const Dashboard = () => {
                            <p className="text-xs text-emerald-100/60 mt-4 font-medium relative z-10">Based on your daily average of {analytics?.forecast?.dailyAverage || 0} kg.</p>
                         </div>
 
-                        <div className="bg-white rounded-[2rem] p-8 border border-neutral-100 shadow-sm flex flex-col justify-center">
+                        <div className="bg-white rounded-[2rem] p-8 border border-neutral-100 shadow-sm flex flex-col justify-center hover-3d">
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="p-2 bg-amber-50 text-amber-500 rounded-lg"><Bell size={18} /></span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Optimization Tip</span>
@@ -300,7 +300,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* Local Environment Widget */}
-                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-neutral-100 flex flex-col group relative overflow-hidden">
+                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-neutral-100 flex flex-col group relative overflow-hidden hover-3d">
                         <div className="absolute top-[-50%] right-[-20%] w-64 h-64 bg-sky-400/10 rounded-full blur-[80px] pointer-events-none"></div>
                         <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100 w-max mb-6">Local Environment</h3>
                         
