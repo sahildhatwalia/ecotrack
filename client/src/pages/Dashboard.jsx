@@ -1,343 +1,329 @@
 import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler } from 'chart.js';
-import { Bell, User, MapPin, Navigation, TrendingUp, ShieldCheck, ShieldAlert, Cpu, ChevronRight } from 'lucide-react';
+import { 
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, 
+  LineElement, Title, Tooltip, Legend, ArcElement, Filler 
+} from 'chart.js';
+import { 
+  TrendingUp, TrendingDown, Zap, Globe, Gauge, 
+  ChevronRight, Sparkles, Trophy, Calendar,
+  ArrowUpRight, AlertCircle, Info, MessageSquare
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import confetti from 'canvas-confetti';
-import AdBanner from '../components/AdBanner';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
+ChartJS.register(
+  CategoryScale, LinearScale, PointElement, LineElement, 
+  Title, Tooltip, Legend, ArcElement, Filler
+);
+
+const StatCard = ({ title, value, trend, icon: Icon, color }) => (
+  <motion.div 
+    whileHover={{ y: -4 }}
+    className="saas-card p-6 flex flex-col bg-white group cursor-default"
+  >
+    <div className="flex items-center justify-between mb-4">
+      <div className={`p-2.5 rounded-xl ${color} bg-opacity-10 shadow-sm group-hover:scale-110 transition-transform`}>
+        <Icon size={20} className={color.replace('bg-', 'text-')} />
+      </div>
+      {trend && (
+        <span className={`text-xs font-bold flex items-center gap-1 ${trend > 0 ? 'text-green-600' : 'text-rose-600'}`}>
+          {trend > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+          {Math.abs(trend)}%
+        </span>
+      )}
+    </div>
+    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{title}</p>
+    <h3 className="text-2xl font-black text-slate-900 tracking-tight">{value}</h3>
+  </motion.div>
+);
 
 const Dashboard = () => {
     const { api, user } = useContext(AuthContext);
     const [analytics, setAnalytics] = useState(null);
-    const [weather, setWeather] = useState(null);
     const [leaderboard, setLeaderboard] = useState([]);
-    const [chartFilter, setChartFilter] = useState('All');
-    const [rewards, setRewards] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [analyticsRes, leaderboardRes, rewardsRes] = await Promise.all([
+                const [analyticsRes, leaderboardRes] = await Promise.all([
                     api.get('/analytics'),
-                    api.get('/leaderboard'),
-                    api.get('/rewards')
+                    api.get('/leaderboard')
                 ]);
                 setAnalytics(analyticsRes.data.data);
                 setLeaderboard(leaderboardRes.data.data.slice(0, 5));
-                setRewards(rewardsRes.data.data.slice(0, 3)); // Show top 3 rewards
             } catch (err) {
-                console.error(err);
+                toast.error("Failed to sync production analytics.");
+            } finally {
+                setIsLoading(false);
             }
         };
-
-        const fetchWeather = () => {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                try {
-                    const { latitude, longitude } = position.coords;
-                    const weatherRes = await api.get(`/weather?lat=${latitude}&lon=${longitude}`);
-                    setWeather(weatherRes.data.data);
-                } catch (err) {
-                    console.error(err);
-                }
-            }, () => {
-                console.error("Geolocation is not supported or permission denied.");
-            });
-        };
-
         fetchData();
-        fetchWeather();
     }, [api]);
 
-    // Data for Carbon Score Gauge
-    const scoreVal = user?.carbonFootprint || 0;
-    const maxScore = 150; 
-    const gaugeData = {
-        labels: ['Score', 'Remaining'],
-        datasets: [{
-            data: [scoreVal, maxScore - scoreVal > 0 ? maxScore - scoreVal : 0],
-            backgroundColor: ['#10B981', '#E5E7EB'], // Emerald-500 and Gray-200
-            borderWidth: 0,
-            circumference: 180,
-            rotation: 270,
-            cutout: '80%',
-        }]
-    };
-
-    // Filter Logic for Mock Graph Data interactivity
-    const getFilteredSavingsData = () => {
-        const baseData = analytics?.monthlySavings.map(d => d.totalCo2Saved) || [50, 130, 80, 200, 140, 210, 180, 140, 250];
-        if (chartFilter === 'All') return baseData;
-        if (chartFilter === 'Walking') return baseData.map(v => v * 0.3); // mock lower share
-        if (chartFilter === 'Cycling') return baseData.map(v => v * 0.4);
-        if (chartFilter === 'Transport') return baseData.map(v => v * 0.2);
-        return baseData;
-    };
-
-    // Data for Monthly Savings Area Chart
+    // Chart Data Configs
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const savingsData = getFilteredSavingsData();
-    const chartLabels = analytics?.monthlySavings.map(d => months[d._id - 1] || `M${d._id}`) || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+    const chartLabels = analytics?.monthlySavings.map(d => months[d._id - 1]) || months.slice(0, 6);
+    const savingsData = analytics?.monthlySavings.map(d => d.totalCo2Saved) || [120, 190, 300, 250, 420, 510];
 
     const areaChartData = {
         labels: chartLabels,
-        datasets: [
-            {
-                label: 'Monthly CO2 Savings',
-                data: savingsData,
-                fill: true,
-                backgroundColor: (context) => {
-                    const ctx = context.chart.ctx;
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); // emerald-500 with opacity
-                    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-                    return gradient;
-                },
-                borderColor: '#10B981', // emerald-500
-                borderWidth: 2,
-                tension: 0.4, // Smooth curves
-                pointRadius: 0,
+        datasets: [{
+            label: 'CO2 Saved',
+            data: savingsData,
+            fill: true,
+            backgroundColor: (context) => {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(34, 197, 94, 0.2)');
+                gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
+                return gradient;
             },
-        ],
+            borderColor: '#22c55e',
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#22c55e',
+            pointBorderWidth: 2,
+            pointHoverRadius: 6,
+        }]
     };
 
-    const areaChartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-        },
-        scales: {
-            x: { grid: { display: false } },
-            y: {
-               grid: { color: '#F3F4F6', drawBorder: false }, // gray-100
-               min: 0,
-            }
-        }
+    const doughnutData = {
+        labels: ['Transport', 'Food', 'Energy'],
+        datasets: [{
+            data: [45, 25, 30],
+            backgroundColor: ['#22c55e', '#0f172a', '#e2e8f0'],
+            borderWidth: 0,
+            hoverOffset: 10
+        }]
     };
 
-    const trustScore = user?.trustScore || 0;
-    const isHighTrust = trustScore >= 80;
+    if (isLoading) {
+      return (
+        <div className="space-y-8 animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-2xl" />)}
+          </div>
+          <div className="grid grid-cols-3 gap-8">
+            <div className="col-span-2 h-96 bg-slate-100 rounded-3xl" />
+            <div className="h-96 bg-slate-100 rounded-3xl" />
+          </div>
+        </div>
+      );
+    }
 
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col h-full bg-[#f8fbfa]"
+            className="pb-10"
         >
-            {/* Page Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-neutral-900 tracking-tight">System Overview</h1>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest">Real-time Analytics Active</p>
-                    </div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-2">Workspace Dashboard</h1>
+                    <p className="text-slate-500 font-medium text-sm flex items-center gap-2">
+                       <Calendar size={14} /> Tracking period: {months[new Date().getMonth()]} {new Date().getFullYear()}
+                    </p>
                 </div>
-                
-                {/* AI Trust Badge */}
-                <div className={`flex items-center gap-3 px-5 py-2.5 rounded-2xl border ${isHighTrust ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'} shadow-sm transition-all hover:scale-105 group`}>
-                    <div className={`p-1.5 rounded-lg ${isHighTrust ? 'bg-emerald-500' : 'bg-rose-500'} text-white`}>
-                        {isHighTrust ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-black uppercase tracking-tighter opacity-60">AI Trust Score</span>
-                            <Cpu size={10} className="opacity-40 group-hover:rotate-180 transition-transform duration-500" />
-                        </div>
-                        <p className="text-sm font-black leading-none">{trustScore}% Verified</p>
-                    </div>
+                <div className="flex items-center gap-3">
+                   <button onClick={() => toast.success("Exporting report...")} className="btn-secondary py-2 px-4 text-xs">Export PDF</button>
+                   <button className="btn-primary py-2 px-4 text-xs flex items-center gap-2">
+                     <Zap size={14} /> New Activity
+                   </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 perspective-container">
-                {/* Left Column (Main Charts) */}
-                <div className="xl:col-span-2 flex flex-col gap-8">
-                    {/* Top row in Left Column: Score & Recent */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        
-                        {/* Carbon Score Gauge Widget */}
-                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 flex flex-col relative overflow-hidden group hover-3d">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <TrendingUp size={80} />
-                            </div>
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">Performance Index</h3>
-                                <span className="text-xs font-bold text-emerald-600">+12% vs last month</span>
-                            </div>
-                            <div className="relative flex-1 flex items-center justify-center min-h-[180px]">
-                                <div className="absolute inset-0 flex items-end justify-center pb-4">
-                                     <Doughnut data={gaugeData} options={{plugins: {legend: {display: false}, tooltip: {enabled: false}}, maintainAspectRatio: false }} />
-                                </div>
-                                <div className="absolute bottom-6 flex flex-col items-center">
-                                    <span className="text-5xl font-black text-neutral-900 tracking-tighter">{scoreVal.toFixed(0)}</span>
-                                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Kg CO2 Saved</span>
-                                </div>
-                            </div>
-                            <div className="flex justify-between mt-4 px-2">
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-neutral-300 uppercase">Target</span>
-                                    <span className="text-sm font-black text-neutral-700">150 Kg</span>
-                                </div>
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[10px] font-bold text-neutral-300 uppercase">Efficiency</span>
-                                    <span className="text-sm font-black text-emerald-500">{((scoreVal/maxScore)*100).toFixed(0)}%</span>
-                                </div>
-                            </div>
-                        </div>
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <StatCard 
+                  title="Total CO₂ Emissions" 
+                  value="1.24 Tons" 
+                  trend={-12.5} 
+                  icon={Globe} 
+                  color="bg-green-500" 
+                />
+                <StatCard 
+                  title="Daily Carbon Score" 
+                  value="84/100" 
+                  trend={4.2} 
+                  icon={Gauge} 
+                  color="bg-slate-900" 
+                />
+                <StatCard 
+                  title="Sustainability Streak" 
+                  value="14 Days" 
+                  trend={100} 
+                  icon={Trophy} 
+                  color="bg-amber-500" 
+                />
+                <StatCard 
+                  title="Verified Impact" 
+                  value="850 Kg" 
+                  trend={2.1} 
+                  icon={Sparkles} 
+                  color="bg-blue-500" 
+                />
+            </div>
 
-                        {/* Recent Activities Widget */}
-                        <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-neutral-100 hover-3d">
-                            <div className="flex justify-between items-center mb-8">
-                                <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">Live Activity Feed</h3>
-                                <Link to="/activities" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                                    <ChevronRight size={20} />
-                                </Link>
-                            </div>
-                            <div className="space-y-6">
-                                {analytics?.recentActivities?.slice(0, 3).map((activity, idx) => (
-                                    <div key={idx} className="flex items-center gap-5 group cursor-pointer">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 ${activity.activityType.toLowerCase().includes('walk') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-sky-50 text-sky-600 border border-sky-100'}`}>
-                                            {activity.activityType.toLowerCase().includes('walk') ? <TrendingUp size={22} /> : <Navigation size={22} />}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-center">
-                                                <p className="text-sm font-black text-neutral-800">{activity.activityType}</p>
-                                                <span className="text-[10px] font-bold text-emerald-500">+{activity.points} pts</span>
-                                            </div>
-                                            <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">{activity.co2Saved.toFixed(2)} kg saved • {new Date(activity.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                                        </div>
-                                    </div>
-                                )) || (
-                                    <div className="text-[10px] text-neutral-400 py-10 text-center font-black uppercase tracking-[0.2em]">Awaiting Data...</div>
-                                )}
-                            </div>
-                            <Link to="/activities" className="mt-8 w-full block py-4 bg-neutral-50 border border-neutral-100 text-neutral-900 rounded-2xl text-center text-xs font-black uppercase tracking-widest hover:bg-neutral-100 transition-colors">Log New Entry</Link>
-                        </div>
-                    </div>
-
-                    {/* Monthly Savings Area Chart */}
-                    <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-neutral-100 hover-3d">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Analytics Chart */}
+                <div className="lg:col-span-8 space-y-8">
+                    <div className="saas-card p-8">
+                        <div className="flex justify-between items-center mb-8">
                             <div>
-                                <h3 className="text-xl font-black text-neutral-900 tracking-tight">Eco Impact Velocity</h3>
-                                <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest mt-1">Aggregated CO2 displacement across all vectors</p>
+                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">Environmental Momentum</h3>
+                                <p className="text-xs text-slate-400">Net CO₂ displacement over time</p>
                             </div>
-                            <div className="flex bg-neutral-50 p-1.5 rounded-2xl border border-neutral-100">
-                                {['All', 'Walking', 'Cycling'].map(f => (
-                                    <button
-                                        key={f}
-                                        onClick={() => setChartFilter(f)}
-                                        className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-all ${chartFilter === f ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100' : 'text-neutral-400 hover:text-neutral-600'}`}
-                                    >
-                                        {f}
-                                    </button>
-                                ))}
+                            <div className="flex gap-2">
+                               {['6M', '1Y', 'ALL'].map(t => (
+                                 <button key={t} className={`px-3 py-1 rounded-md text-[10px] font-bold ${t === '6M' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 hover:text-slate-600'}`}>{t}</button>
+                               ))}
                             </div>
                         </div>
-                        <div className="h-72">
-                            <Line data={areaChartData} options={areaChartOptions} />
+                        <div className="h-80">
+                           <Line 
+                             data={areaChartData} 
+                             options={{
+                               responsive: true,
+                               maintainAspectRatio: false,
+                               plugins: { legend: { display: false } },
+                               scales: {
+                                 x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } },
+                                 y: { grid: { color: '#f1f5f9' }, border: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }
+                               }
+                             }} 
+                           />
                         </div>
                     </div>
-                    
-                    {/* Big Production Ad */}
-                    <AdBanner className="mt-4" />
 
-                    {/* AI Forecasting Widget (NEW) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                        <div className="bg-emerald-900 rounded-[2rem] p-8 text-white relative overflow-hidden group hover-3d">
-                           <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-emerald-500/20 rounded-full blur-[40px] group-hover:scale-125 transition-transform duration-700"></div>
-                           <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-4 relative z-10">AI Projection (Next 30d)</h4>
-                           <div className="flex items-baseline gap-3 relative z-10">
-                             <span className="text-5xl font-black tracking-tighter">+{analytics?.forecast?.projectedNextMonth || '---'}</span>
-                             <span className="text-sm font-bold text-emerald-300">KG CO2</span>
+                    {/* Breakdown & Gamification */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="saas-card p-8 flex flex-col">
+                           <h4 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2">
+                             Emissions Breakdown <Info size={14} className="text-slate-300" />
+                           </h4>
+                           <div className="flex-1 flex items-center justify-center relative">
+                               <div className="w-48 h-48">
+                                  <Doughnut data={doughnutData} options={{ cutout: '75%', plugins: { legend: { display: false } } }} />
+                               </div>
+                               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                  <span className="text-2xl font-black text-slate-900">45%</span>
+                                  <span className="text-[10px] text-slate-400 font-bold uppercase">Transport</span>
+                               </div>
                            </div>
-                           <p className="text-xs text-emerald-100/60 mt-4 font-medium relative z-10">Based on your daily average of {analytics?.forecast?.dailyAverage || 0} kg.</p>
+                           <div className="grid grid-cols-3 gap-2 mt-8">
+                               {['Transport', 'Food', 'Energy'].map((l, i) => (
+                                 <div key={l} className="text-center">
+                                    <div className={`w-2 h-2 rounded-full mx-auto mb-1 ${i===0 ? 'bg-green-500' : i===1 ? 'bg-slate-900' : 'bg-slate-200'}`} />
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase">{l}</p>
+                                 </div>
+                               ))}
+                           </div>
                         </div>
 
-                        <div className="bg-white rounded-[2rem] p-8 border border-neutral-100 shadow-sm flex flex-col justify-center hover-3d">
-                            <div className="flex items-center gap-3 mb-4">
-                                <span className="p-2 bg-amber-50 text-amber-500 rounded-lg"><Bell size={18} /></span>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Optimization Tip</span>
-                            </div>
-                            <p className="text-neutral-800 font-bold leading-relaxed">{analytics?.forecast?.recommendation || "Maintain your current activity level to stay on track for your monthly goal!"}</p>
+                        <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden group">
+                           <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-green-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                           <h4 className="text-xs font-black uppercase tracking-widest text-green-400 mb-6 flex items-center gap-2">
+                             <TrendingUp size={14} /> Weekly Objective
+                           </h4>
+                           <h3 className="text-2xl font-bold mb-2">Reduce Energy by 15%</h3>
+                           <p className="text-sm text-slate-400 mb-8 font-medium">You are currently at 8% reduction this week. Unplug unused devices to meet your goal!</p>
+                           <div className="space-y-3">
+                              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                                 <span>Progress</span>
+                                 <span className="text-green-500">8% / 15%</span>
+                              </div>
+                              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                                 <motion.div 
+                                   initial={{ width: 0 }}
+                                   animate={{ width: '53%' }}
+                                   className="h-full bg-green-500"
+                                 />
+                              </div>
+                           </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column (Side Widgets) */}
-                <div className="flex flex-col gap-8">
-                    {/* Leaderboard Card */}
-                    <div className="bg-neutral-900 rounded-[2.5rem] p-8 shadow-2xl text-white relative overflow-hidden group">
-                        <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
-                        <h3 className="text-lg font-black mb-8 tracking-tight flex items-center justify-between">
-                            Global Elite
-                            <span className="bg-emerald-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded tracking-widest">LIVE</span>
-                        </h3>
-                        <div className="space-y-4 relative z-10">
-                            {leaderboard.map((u, i) => (
-                                <div key={u._id} className="flex items-center gap-4 group/item cursor-pointer">
-                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${i === 0 ? 'bg-yellow-400 text-yellow-900 shadow-lg shadow-yellow-400/20 scale-110' : 'bg-white/5 text-neutral-400 border border-white/10'}`}>
-                                        {i + 1}
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-xs font-black group-hover/item:text-emerald-400 transition-colors tracking-tight">{u.username}</p>
-                                        <div className="w-full h-1 bg-white/5 rounded-full mt-1.5 overflow-hidden">
-                                            <div className={`h-full ${i === 0 ? 'bg-yellow-400' : 'bg-emerald-500'}`} style={{ width: `${(u.points/leaderboard[0].points)*100}%` }}></div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-white">{u.points}</p>
-                                        <p className="text-[8px] font-bold text-neutral-500 tracking-tighter uppercase">PTS</p>
+                {/* Sidebar Widgets */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Leaderboard / Community */}
+                    <div className="saas-card p-6">
+                        <div className="flex justify-between items-center mb-6">
+                           <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest italic group-hover:scale-110">Global Elite</h3>
+                           <Link to="/leaderboard" className="p-1 px-2.5 bg-slate-50 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                             View All <ChevronRight size={10} />
+                           </Link>
+                        </div>
+                        <div className="space-y-4">
+                           {leaderboard.map((u, i) => (
+                             <div key={u._id} className="flex items-center gap-3">
+                                <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] ${i === 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-400'}`}>
+                                  {i+1}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                   <p className="text-xs font-bold text-slate-900 truncate">{u.username}</p>
+                                   <div className="w-full h-1 bg-slate-50 rounded-full mt-1 overflow-hidden">
+                                      <div className="h-full bg-green-500 opacity-50" style={{ width: `${(u.points/leaderboard[0].points)*100}%` }} />
+                                   </div>
+                                </div>
+                                <p className="text-[10px] font-bold text-slate-500">{u.points} pts</p>
+                             </div>
+                           ))}
+                        </div>
+                    </div>
+
+                    {/* AI Insight Card */}
+                    <div className="saas-card p-6 bg-green-50 border-green-100/50">
+                        <div className="flex items-center gap-3 mb-4">
+                           <div className="p-2 bg-green-100 text-green-700 rounded-lg">
+                              <Sparkles size={16} />
+                           </div>
+                           <h3 className="text-sm font-bold text-green-900">AI Optimization Tip</h3>
+                        </div>
+                        <p className="text-xs text-green-800 font-medium leading-relaxed mb-4">
+                           Based on your data, switching to carpooling on Thursdays could reduce your weekly output by <span className="font-bold underline">12kg CO₂</span>.
+                        </p>
+                        <button className="text-[10px] font-bold text-green-700 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                           Learn more <ArrowUpRight size={10} />
+                        </button>
+                    </div>
+
+                    {/* Quick Community / Social */}
+                    <div className="saas-card p-6 bg-slate-50 border-slate-100">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 italic">Recent Community Activity</h3>
+                        <div className="space-y-4">
+                            {[1,2].map(i => (
+                                <div key={i} className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100" />
+                                    <div>
+                                        <p className="text-[11px] font-bold text-slate-900 leading-tight">Sarah J. <span className="text-slate-400 font-medium italic">planted 2 trees in Amazonian project.</span></p>
+                                        <p className="text-[10px] text-slate-400 mt-1">2h ago</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-
-                    {/* Local Environment Widget */}
-                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-neutral-100 flex flex-col group relative overflow-hidden hover-3d">
-                        <div className="absolute top-[-50%] right-[-20%] w-64 h-64 bg-sky-400/10 rounded-full blur-[80px] pointer-events-none"></div>
-                        <h3 className="font-black text-neutral-900 uppercase tracking-widest text-[10px] bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100 w-max mb-6">Local Environment</h3>
-                        
-                        {weather ? (
-                            <>
-                                <div className="flex justify-between items-center mb-6 relative z-10">
-                                    <div>
-                                        <p className="text-4xl font-black text-neutral-900 tracking-tighter">{Math.round(weather.main?.temp || 0)}°<span className="text-xl text-neutral-400">C</span></p>
-                                        <p className="text-xs font-bold text-neutral-500 capitalize">{weather.weather?.description || 'Loading...'}</p>
-                                    </div>
-                                    <div className="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-sky-100 group-hover:scale-110 transition-transform">
-                                        🌤️
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4 mt-auto relative z-10">
-                                    <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-100 flex flex-col items-center justify-center">
-                                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Humidity</span>
-                                        <span className="text-lg font-black text-neutral-800">{weather.main?.humidity || 0}%</span>
-                                    </div>
-                                    <div className={`p-4 rounded-2xl flex flex-col items-center justify-center border ${weather.aqi <= 2 ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : weather.aqi <= 4 ? 'bg-amber-50 border-amber-100 text-amber-800' : 'bg-rose-50 border-rose-100 text-rose-800'}`}>
-                                        <span className="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">AQI Index</span>
-                                        <span className="text-lg font-black">{weather.aqi || 2} / 5</span>
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8">
-                                <div className="w-8 h-8 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-                                <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Scanning Environment...</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Small Ad Sidebar */}
-                    <AdBanner type="sidebar" className="mt-auto" />
                 </div>
+            </div>
+
+            {/* Floating Chat Button */}
+            <div className="fixed bottom-8 right-8 z-50">
+               <motion.button 
+                 whileHover={{ scale: 1.1 }}
+                 whileTap={{ scale: 0.9 }}
+                 onClick={() => toast("AI Support Coming Soon!")}
+                 className="w-14 h-14 bg-green-500 text-white rounded-2xl shadow-2xl shadow-green-500/40 flex items-center justify-center hover:bg-green-600 transition-colors"
+               >
+                 <MessageSquare size={24} />
+               </motion.button>
             </div>
         </motion.div>
     );

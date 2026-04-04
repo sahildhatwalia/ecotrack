@@ -1,30 +1,29 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Bell, User, Leaf, Heart, Sun, Search, ShieldCheck, ChevronRight } from 'lucide-react';
+import { 
+  Bell, User, Leaf, Search, ShieldCheck, 
+  Settings, LogOut, ChevronDown, Sparkles
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthContext from '../context/AuthContext';
 import { useSearch } from '../context/SearchContext';
 
 const Topbar = () => {
-  const { user } = useContext(AuthContext);
-  const { searchTerm, setSearchTerm, isSearchActive, setIsSearchActive } = useSearch();
+  const { user, logout } = useContext(AuthContext);
+  const { searchTerm, setSearchTerm } = useSearch();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showResults, setShowResults] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const dropdownRef = useRef(null);
-  const searchRef = useRef(null);
 
-  const motivationalThoughts = [
-    { id: 1, icon: <Leaf className="text-emerald-500 w-4 h-4" />, title: "Pattern Analysis", text: "AI verified your last 5 activities as authentic. +50 Trust Bonus!" },
-    { id: 2, icon: <ShieldCheck className="text-blue-500 w-4 h-4" />, title: "Anti-Fraud Active", text: "Global shield is protecting your rewards from simulation attacks." },
-    { id: 3, icon: <Sun className="text-amber-500 w-4 h-4" />, title: "Daily Goal", text: "You are 2km away from unlocking the Starbucks voucher!" },
+  const notifications = [
+    { id: 1, type: 'eco', title: "Efficiency Boost", text: "Your recycling habits improved by 15% this week!" },
+    { id: 2, type: 'alert', title: "Daily Milestone", text: "You just crossed 50kg of saved CO₂. Awesome!" },
   ];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowNotifications(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowResults(false);
+        setShowUserMenu(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -32,125 +31,107 @@ const Topbar = () => {
   }, []);
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-neutral-100 h-20 flex items-center justify-between px-10 shrink-0 z-40 w-full relative">
-      <div className="flex items-center gap-8 flex-1">
-        {/* Mobile Branding */}
-        <div className="flex md:hidden items-center text-emerald-600">
-           <Leaf size={24} className="mr-2" />
-           <span className="text-xl font-black tracking-tighter text-neutral-900">EcoTrack</span>
-        </div>
-
-        {/* Search Bar - Functional */}
-        <div className="relative" ref={searchRef}>
-          <div className="hidden md:flex items-center bg-neutral-50/50 backdrop-blur-sm border border-neutral-100 px-5 py-2.5 rounded-[1.5rem] w-96 group focus-within:border-emerald-400 focus-within:bg-white focus-within:shadow-[0_10px_40px_rgba(16,185,129,0.1)] transition-all duration-300">
-              <Search size={18} className="text-neutral-300 group-focus-within:text-emerald-500 transition-colors" />
-              <input 
-                  type="text" 
-                  placeholder="Search rewards, actions or intel..." 
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setShowResults(e.target.value.length > 0);
-                  }}
-                  onFocus={() => searchTerm.length > 0 && setShowResults(true)}
-                  className="bg-transparent border-none outline-none text-sm ml-3 w-full font-semibold text-neutral-700 placeholder:text-neutral-300"
-              />
-          </div>
-
-          <AnimatePresence>
-            {showResults && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute top-full left-0 mt-3 w-full bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-neutral-100 z-50 overflow-hidden"
-              >
-                <div className="p-6">
-                  <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mb-4">Search Intel</p>
-                  <div className="space-y-2">
-                    {['Rewards', 'Activities', 'Community'].map((item) => (
-                      <button 
-                        key={item}
-                        className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-neutral-50 group/item transition-all"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-xs group-hover/item:bg-emerald-500 group-hover/item:text-white transition-all">
-                            {item[0]}
-                          </div>
-                          <span className="text-sm font-bold text-neutral-600 group-hover/item:text-neutral-900">{item}</span>
-                        </div>
-                        <ChevronRight size={14} className="text-neutral-300 group-hover/item:text-emerald-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-neutral-50 px-6 py-4 flex items-center justify-between">
-                  <p className="text-[10px] font-bold text-neutral-400">Press ENTER for global search</p>
-                  <Search size={12} className="text-neutral-300" />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+    <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 z-40 sticky top-0">
+      <div className="flex-1 flex items-center max-w-xl">
+        <div className="flex-1 relative group focus-within:max-w-md transition-all duration-300">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-green-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search analytics, rewards, or community..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-50/50 border border-transparent focus:bg-white focus:border-slate-200 pl-10 pr-4 py-2 rounded-xl text-sm outline-none transition-all"
+          />
         </div>
       </div>
       
-      <div className="flex items-center space-x-6 ml-auto">
-        <div className="relative" ref={dropdownRef}>
+      <div className="flex items-center gap-2 md:gap-4 ml-4" ref={dropdownRef}>
+        {/* AI Status */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-100">
+           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+           <span className="text-[10px] font-bold uppercase tracking-widest">AI Engine Live</span>
+        </div>
+
+        {/* Notifications */}
+        <div className="relative">
           <button 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-3 text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 rounded-2xl transition-all"
+            className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-all relative"
           >
-            <Bell size={22} />
-            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-emerald-500 rounded-full border-[3px] border-white shadow-sm"></span>
+            <Bell size={20} />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
           </button>
 
           <AnimatePresence>
             {showNotifications && (
               <motion.div 
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className="absolute right-0 mt-4 w-96 bg-white rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-neutral-100 z-50 overflow-hidden"
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden"
               >
-                <div className="px-8 py-6 border-b border-neutral-50 flex items-center justify-between">
-                  <h3 className="font-black text-neutral-900 text-lg tracking-tight">System Intel</h3>
-                  <button className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">Mark all read</button>
+                <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                  <h3 className="font-bold text-slate-900 text-sm italic tracking-tight flex items-center gap-2"><Sparkles size={14} className="text-green-500" /> Notifications</h3>
+                  <button className="text-[10px] font-bold text-green-600 uppercase tracking-widest hover:underline">Clear all</button>
                 </div>
-                <div className="flex flex-col max-h-[400px] overflow-y-auto no-scrollbar">
-                  {motivationalThoughts.map((thought) => (
-                    <div key={thought.id} className="p-6 border-b border-neutral-50 hover:bg-neutral-50 transition-all flex gap-4 items-start group">
-                      <div className="bg-white p-2.5 text-neutral-800 rounded-xl shadow-sm border border-neutral-100 flex-shrink-0 group-hover:scale-110 transition-transform">
-                        {thought.icon}
+                <div className="flex flex-col max-h-[300px] overflow-y-auto divide-y divide-slate-50">
+                  {notifications.map((n) => (
+                    <div key={n.id} className="p-4 hover:bg-slate-50 transition-all flex gap-3 cursor-default">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${n.type === 'eco' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                        {n.type === 'eco' ? <Leaf size={16} /> : <ShieldCheck size={16} />}
                       </div>
                       <div>
-                        <p className="text-xs font-black text-neutral-900 uppercase tracking-widest mb-1">{thought.title}</p>
-                        <p className="text-sm text-neutral-500 leading-relaxed font-medium">
-                            {thought.text}
-                        </p>
+                        <p className="text-xs font-bold text-slate-900 mb-0.5">{n.title}</p>
+                        <p className="text-[11px] text-slate-500 leading-normal">{n.text}</p>
                       </div>
                     </div>
                   ))}
-                </div>
-                <div className="bg-neutral-900 px-8 py-4 text-center">
-                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center justify-center gap-2">
-                    <ShieldCheck size={12} /> Secure Cloud Sync Active
-                  </p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="h-8 w-[1px] bg-neutral-100"></div>
-
-        <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-neutral-900 leading-none mb-1">{user?.username || 'Eco User'}</p>
-                <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest leading-none">Pro Member</p>
+        {/* User Account Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all"
+          >
+            <div className="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-bold">
+               {user?.username ? user.username[0].toUpperCase() : 'U'}
             </div>
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-900 text-white flex items-center justify-center font-black text-lg shadow-lg border-2 border-white group-hover:rotate-12 group-hover:scale-110 transition-all duration-300">
-            {user?.username ? user.username[0].toUpperCase() : <User size={20} />}
-          </div>
+            <ChevronDown size={14} className={`text-slate-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 p-2 overflow-hidden"
+              >
+                <div className="px-3 py-3 border-b border-slate-50 mb-1">
+                   <p className="text-sm font-bold text-slate-900 truncate">{user?.username || 'User'}</p>
+                   <p className="text-[10px] text-slate-500 truncate">{user?.email || 'user@example.com'}</p>
+                </div>
+                <button className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                  <User size={16} /> My Account
+                </button>
+                <button className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                  <Settings size={16} /> Preferences
+                </button>
+                <div className="h-[1px] bg-slate-100 my-1" />
+                <button 
+                  onClick={logout}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                >
+                  <LogOut size={16} /> Log Out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </header>

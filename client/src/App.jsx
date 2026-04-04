@@ -7,10 +7,13 @@ import Rewards from './pages/Rewards';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import Welcome from './pages/Welcome';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="top-right" />
+      <Routes>
       <Route path="/welcome" element={<Welcome />} />
       <Route path="/login" element={<Welcome />} />
       <Route path="/signup" element={<Welcome />} />
@@ -28,7 +31,8 @@ function App() {
         <Route path="rewards" element={<Rewards />} />
         <Route path="profile" element={<Profile />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

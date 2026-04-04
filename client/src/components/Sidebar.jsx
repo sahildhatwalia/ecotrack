@@ -1,88 +1,89 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { LayoutDashboard, Activity, Trophy, Gift, User, LogOut, Leaf, ShieldCheck } from 'lucide-react';
+import { 
+  LayoutDashboard, Activity, Trophy, Gift, 
+  Settings, LogOut, Leaf, ShieldCheck, 
+  ChevronRight, Sparkles 
+} from 'lucide-react';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
 
-  const handleLogout = () => {
-    logout();
-  };
-
   const navItems = [
-    { to: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-    { to: '/activities', icon: <Activity size={20} />, label: 'Analytics' }, 
-    { to: '/leaderboard', icon: <Trophy size={20} />, label: 'Community' }, 
-    { to: '/rewards', icon: <Gift size={20} />, label: 'Rewards' },
-    { to: '/profile', icon: <User size={20} />, label: 'Settings' },
+    { to: '/', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/activities', icon: <Activity size={18} />, label: 'Analytics' }, 
+    { to: '/leaderboard', icon: <Trophy size={18} />, label: 'Community' }, 
+    { to: '/rewards', icon: <Gift size={18} />, label: 'Rewards' },
+    { to: '/profile', icon: <Settings size={18} />, label: 'Settings' },
   ];
 
   return (
-    <div className="w-72 bg-white border-r border-neutral-100 h-full flex flex-col pt-10 pb-6 shadow-[10px_0_40px_rgba(0,0,0,0.02)] relative z-50">
-      {/* Premium Logo Area */}
-      <div className="px-8 mb-12 flex items-center group cursor-pointer">
-        <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:rotate-12 transition-all duration-500">
-            <Leaf size={22} className="text-white" />
+    <div className="w-64 bg-white border-r border-slate-200 h-full flex flex-col z-50">
+      {/* Brand */}
+      <div className="p-6 mb-4 flex items-center gap-3">
+        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white shadow-sm">
+          <Leaf size={18} />
         </div>
-        <div className="ml-4">
-            <span className="text-2xl font-black tracking-tighter text-neutral-900 block">EcoTrack</span>
-            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] leading-none">v2.4 Production</span>
-        </div>
+        <span className="text-lg font-bold tracking-tight text-slate-900">EcoTrack</span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-6 space-y-2">
+      {/* Main Nav */}
+      <nav className="flex-1 px-3 space-y-1">
+        <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</p>
         {navItems.map((item) => (
-            <NavLink 
-                key={item.to}
-                to={item.to} 
-                end={item.to === '/'}
-                className={({ isActive }) => 
-                    `flex items-center py-4 px-5 rounded-2xl transition-all duration-300 font-bold group ${
-                        isActive 
-                        ? 'bg-neutral-900 text-white shadow-2xl shadow-neutral-200' 
-                        : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-900'
-                    }`
-                } 
-            >
-              {({ isActive }) => (
-                <>
-                  <div className={`mr-4 transition-transform group-hover:scale-110`}>
-                      {item.icon}
-                  </div>
-                  <span className="text-sm tracking-tight">{item.label}</span>
-                  {isActive && (
-                      <div className="ml-auto w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_10px_#10b981]"></div>
-                  )}
-                </>
-              )}
-            </NavLink>
+          <NavLink 
+            key={item.to}
+            to={item.to} 
+            end={item.to === '/'}
+            className={({ isActive }) => 
+              `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 text-sm font-medium ${
+                isActive 
+                ? 'bg-green-50 text-green-700 shadow-sm' 
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              }`
+            } 
+          >
+            {item.icon}
+            {item.label}
+          </NavLink>
         ))}
-
       </nav>
 
-      {/* AI Trust Indicator (Sidebar mini-version) */}
-      <div className="px-6 mb-8 mt-auto">
-        <div className="bg-neutral-50 rounded-3xl p-5 border border-neutral-100 relative overflow-hidden flex items-center gap-4">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${user?.trustScore >= 80 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
-                <ShieldCheck size={20} />
-            </div>
-            <div>
-                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none mb-1">AI Verified</p>
-                <p className="text-xs font-black text-neutral-900">{user?.trustScore || 100}% Trust</p>
-            </div>
+      {/* Pro Badge / Gamification mini card */}
+      <div className="px-4 mb-4">
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 text-white relative overflow-hidden group cursor-pointer shadow-lg">
+          <div className="absolute top-[-10%] right-[-10%] w-16 h-16 bg-green-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={14} className="text-green-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Pro Member</span>
+          </div>
+          <p className="text-xs text-slate-300 font-medium mb-3">Unlock AI-powered insights and sensor sync.</p>
+          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+             <div className="h-full bg-green-500" style={{ width: '65%' }}></div>
+          </div>
         </div>
       </div>
 
-      {/* Logout */}
-      <div className="px-6">
+      {/* User & Settings */}
+      <div className="p-4 border-t border-slate-100 mt-auto">
+        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
+          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs">
+             {user?.username ? user.username[0].toUpperCase() : 'U'}
+          </div>
+          <div className="flex-1 min-w-0">
+             <p className="text-sm font-bold text-slate-900 truncate">{user?.username || 'User'}</p>
+             <p className="text-[10px] text-slate-500 truncate">{user?.email || 'user@example.com'}</p>
+          </div>
+          <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        
         <button 
-            onClick={handleLogout} 
-            className="flex items-center w-full py-4 px-5 rounded-2xl text-neutral-400 hover:bg-rose-50 hover:text-rose-600 font-bold transition-all duration-300 group"
+          onClick={logout} 
+          className="flex items-center gap-3 w-full py-2 px-3 mt-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200"
         >
-          <LogOut size={20} className="mr-4 group-hover:translate-x-1 transition-transform" />
-          <span className="text-sm">Terminate Session</span>
+          <LogOut size={16} />
+          Log Out
         </button>
       </div>
     </div>
