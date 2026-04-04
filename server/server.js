@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://ecotrack-client-exjy.onrender.com', 'http://127.0.0.1:5173'],
   credentials: true
 }));
 
@@ -22,6 +22,9 @@ app.use('/api', require('./routes/api'));
 app.use('/api/user', require('./routes/user'));
 
 
+app.get("/test",(req,res) => {
+  res.json({message: "API is working!"});
+});
 // Error Handler Middleware
 app.use(errorHandler);
 

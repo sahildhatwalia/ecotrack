@@ -11,9 +11,18 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    console.log("hello");
     e.preventDefault();
     setError(null);
     try {
+      const res = fetch(`${process.env.VITE_API_URL}/user/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      console.log(data);
+
       await signup(username, email, password);
       navigate('/');
     } catch (err) {
