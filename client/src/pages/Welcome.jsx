@@ -85,48 +85,75 @@ const Welcome = () => {
             </nav>
 
             {/* Hero Alpha */}
-            <section className="pt-52 pb-32 px-8 overflow-hidden">
+            <section className="pt-48 pb-32 px-8 overflow-hidden bg-gradient-to-b from-green-50/20 via-white to-white">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center relative">
-                        <motion.div 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-50 border border-green-100 text-[10px] font-black text-green-700 uppercase tracking-[0.2em] mb-12"
-                        >
-                           <Sparkles size={12} /> System Update: Season 02 Active
-                        </motion.div>
-                        
-                        <motion.h1 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                          className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 leading-[0.9] mb-10"
-                        >
-                           Measure. Master.<br />
-                           Live <span className="text-green-500">Cleaner.</span>
-                        </motion.h1>
-                        
-                        <motion.p 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium mb-12 leading-relaxed"
-                        >
-                           The high-integrity platform for tracking verified carbon reduction. Join a global network of eco-operatives displacing millions of tons of CO2.
-                        </motion.p>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                        <div className="lg:col-span-7 text-left relative z-10">
+                            <motion.div 
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-50 border border-green-100 text-[10px] font-black text-green-700 uppercase tracking-[0.2em] mb-8"
+                            >
+                               <Sparkles size={12} /> System Update: Season 02 Active
+                            </motion.div>
+                            
+                            <motion.h1 
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.1 }}
+                              className="text-5xl md:text-7xl xl:text-8xl font-black tracking-tighter text-slate-900 leading-[0.95] mb-8"
+                            >
+                               Measure. Master.<br />
+                               Live <span className="text-green-500">Cleaner.</span>
+                            </motion.h1>
+                            
+                            <motion.p 
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2 }}
+                              className="text-lg text-slate-500 max-w-xl font-medium mb-10 leading-relaxed"
+                            >
+                               The high-integrity platform for tracking verified carbon reduction. Join a global network of eco-operatives displacing millions of tons of CO2.
+                            </motion.p>
 
-                        <motion.div 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="flex flex-col sm:flex-row items-center justify-center gap-6"
-                        >
-                           <button onClick={() => { setIsLogin(false); setIsModalOpen(true); }} className="btn-primary py-5 px-10 text-xs w-full sm:w-auto shadow-2xl shadow-green-500/20">Initiate Profile</button>
-                           <button onClick={() => setIsVideoOpen(true)} className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-slate-900 group">
-                              <span className="w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center group-hover:bg-slate-50 transition-colors"><Play size={14} fill="currentColor" /></span>
-                              Watch Demo
-                           </button>
-                        </motion.div>
+                            <motion.div 
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.3 }}
+                              className="flex flex-col sm:flex-row items-center gap-6"
+                            >
+                               <button onClick={() => { setIsLogin(false); setIsModalOpen(true); }} className="btn-primary py-4 px-10 text-xs w-full sm:w-auto shadow-2xl shadow-green-500/20 uppercase tracking-widest font-black">Initiate Profile</button>
+                               <button onClick={() => setIsVideoOpen(true)} className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-slate-900 group shrink-0">
+                                  <span className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-50 transition-colors"><Play size={14} fill="currentColor" /></span>
+                                  Watch Demo
+                               </button>
+                            </motion.div>
+                        </div>
+                        
+                        <div className="lg:col-span-5 relative">
+                            <div className="absolute inset-0 bg-green-500/10 blur-[80px] rounded-full scale-90" />
+                            <motion.div 
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.8, delay: 0.2 }}
+                              className="saas-card aspect-square bg-slate-100 border-slate-200 overflow-hidden relative shadow-2xl group"
+                            >
+                               <img src="/eco-hero.png" alt="Futuristic Eco City" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                               <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 to-transparent" />
+                               
+                               {/* Floating Glassmorphic Panel */}
+                               <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white flex items-center justify-between shadow-xl">
+                                  <div>
+                                     <p className="text-[9px] font-black tracking-widest text-green-400 uppercase mb-1">Decentralized Audit</p>
+                                     <h4 className="text-sm font-black uppercase tracking-tight">Active Solar Nodes</h4>
+                                  </div>
+                                  <div className="text-right">
+                                     <p className="text-sm font-black text-green-400">1,420 Active</p>
+                                     <p className="text-[9px] font-bold opacity-60 uppercase">Nodes Synced</p>
+                                  </div>
+                                </div>
+                            </motion.div>
+                        </div>
                     </div>
 
                     {/* Immersive UI Preview */}
@@ -192,6 +219,43 @@ const Welcome = () => {
                         <div className="relative p-10 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white text-center">
                            <Globe className="mx-auto mb-4" />
                            <p className="text-sm font-black tracking-widest uppercase">Global Verified Status</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </section>
+
+            {/* Seamless Mobile Integration */}
+            <section className="py-32 bg-white px-8 border-t border-slate-100">
+               <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+                  <div className="relative order-2 lg:order-1">
+                     <div className="saas-card aspect-square bg-slate-50 border-slate-100 flex items-center justify-center group overflow-hidden shadow-2xl">
+                        <img src="/hero.png" alt="Mobile Tracking" className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-1000" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 to-transparent" />
+                        <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white">
+                           <p className="text-xs font-black tracking-widest uppercase mb-1.5 text-green-400">Secure Commits</p>
+                           <p className="text-sm font-semibold opacity-90 leading-relaxed">Operatives verify and commit eco-friendly commute data directly from our secure mobile client.</p>
+                        </div>
+                     </div>
+                  </div>
+                  <div className="order-1 lg:order-2">
+                     <h2 className="text-xs font-black uppercase tracking-[0.3em] text-green-500 mb-6">Mobile Client</h2>
+                     <h3 className="text-5xl font-black tracking-tighter text-slate-900 leading-tight mb-8">Log Commits.<br />Everywhere you go.</h3>
+                     <p className="text-slate-500 font-medium mb-10 leading-relaxed">Our responsive interface and telemetry synchronization ensure seamless logging. Verify your walks, runs, public transit, and recycling efforts directly from the field.</p>
+                     <div className="flex gap-6">
+                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 p-4 px-6 rounded-2xl">
+                           <div className="w-8 h-8 rounded-lg bg-green-500 text-white flex items-center justify-center font-bold text-xs"><Smartphone size={16} /></div>
+                           <div>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Device Sync</p>
+                              <p className="text-xs font-bold text-slate-900">100% Responsive Client</p>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 p-4 px-6 rounded-2xl">
+                           <div className="w-8 h-8 rounded-lg bg-green-500 text-white flex items-center justify-center font-bold text-xs"><Target size={16} /></div>
+                           <div>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">GPS Tracking</p>
+                              <p className="text-xs font-bold text-slate-900">AI Commute Telemetry</p>
+                           </div>
                         </div>
                      </div>
                   </div>

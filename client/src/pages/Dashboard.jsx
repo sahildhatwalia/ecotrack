@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import AdBanner from '../components/AdBanner';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, 
@@ -442,6 +443,9 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Premium Sponsored Banner */}
+            <AdBanner type="horizontal" className="mt-8" />
 
             {/* Premium Tip Detail Modal */}
             <AnimatePresence>

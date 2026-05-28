@@ -31,10 +31,10 @@ const Rewards = () => {
             console.error("API catalogue sync error. Loading offline rewards.");
             // Elegant offline mock fallback
             setRewards([
-                { _id: 'r1', name: 'Eco-Fashion Giftcard', brand: 'Patagonia', description: 'Redeem $50 worth of verified organic garments.', pointsRequired: 800, category: 'Shopping' },
-                { _id: 'r2', name: 'Organic Vegan Feast', brand: 'Green Table', description: 'Get a complimentary chef special dinner course.', pointsRequired: 500, category: 'Food' },
-                { _id: 'r3', name: 'Zero-Emission Ride Credits', brand: 'Lime Scooter', description: 'Enjoy 60 minutes of premium scooter commuting.', pointsRequired: 300, category: 'Travel' },
-                { _id: 'r4', name: 'Premium Documentary Pass', brand: 'CuriosityStream', description: '12-Month premium streaming pass for ecology docuseries.', pointsRequired: 600, category: 'Entertainment' }
+                { _id: 'r1', name: 'Eco-Fashion Giftcard', brand: 'Patagonia', description: 'Redeem $50 worth of verified organic garments.', pointsRequired: 800, category: 'Shopping', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/13/Patagonia_logo.svg' },
+                { _id: 'r2', name: 'Organic Vegan Feast', brand: 'Green Table', description: 'Get a complimentary chef special dinner course.', pointsRequired: 500, category: 'Food', logo: 'https://cdn-icons-png.flaticon.com/512/3238/3238210.png' },
+                { _id: 'r3', name: 'Zero-Emission Ride Credits', brand: 'Lime Scooter', description: 'Enjoy 60 minutes of premium scooter commuting.', pointsRequired: 300, category: 'Travel', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Lime_logo.svg' },
+                { _id: 'r4', name: 'Premium Documentary Pass', brand: 'CuriosityStream', description: '12-Month premium streaming pass for ecology docuseries.', pointsRequired: 600, category: 'Entertainment', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/29/CuriosityStream_logo.svg' }
             ]);
         }
     };
@@ -138,8 +138,12 @@ const Rewards = () => {
                                     className="saas-card p-8 flex flex-col bg-white group hover-shimmer hover-shiver"
                                 >
                                     <div className="flex justify-between items-start mb-8">
-                                        <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center p-3 border border-slate-200/50 group-hover:scale-110 transition-transform">
-                                            <Gift className="text-slate-500" />
+                                        <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center p-2.5 border border-slate-200/50 group-hover:scale-110 transition-transform overflow-hidden">
+                                            {reward.logo ? (
+                                                <img src={reward.logo} alt={reward.brand} className="w-full h-full object-contain" />
+                                            ) : (
+                                                <Gift className="text-slate-500" />
+                                            )}
                                         </div>
                                         <span className="text-[10px] font-black bg-slate-900 text-white px-3 py-1.5 rounded-lg uppercase tracking-widest">
                                             {reward.category}
