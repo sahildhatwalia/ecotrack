@@ -2,33 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --primary: #22c55e;
+  --primary-glow: rgba(34, 197, 94, 0.15);
   --secondary: #0f172a;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', sans-serif;
   @apply antialiased text-slate-900 bg-[#f8fafc];
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-[#22c55e] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-green-600 transition-all shadow-sm hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden bg-[#22c55e] text-white px-6 py-2.5 rounded-xl font-bold tracking-wide hover:bg-green-600 transition-all duration-300 shadow-md hover:shadow-green-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-secondary {
-    @apply bg-white border border-slate-200 text-slate-700 px-6 py-2.5 rounded-lg font-semibold hover:bg-slate-50 transition-all shadow-sm active:scale-95;
+    @apply bg-white border border-slate-200 text-slate-700 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm active:scale-95;
   }
 
   .saas-card {
-    @apply bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-slate-200/20 transition-all duration-300;
+    @apply bg-white rounded-2xl border border-slate-200/80 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_24px_-10px_rgba(34,197,94,0.08)] hover:border-green-200/50 transition-all duration-300;
   }
 
   .glass {
     @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+  }
+
+  /* Shiver Effect - Playful micro-shaking on hover */
+  .hover-shiver:hover {
+    animation: shiver 0.3s ease-in-out infinite alternate;
+  }
+
+  /* Shimmer Glow Sweep Effect for Premium Buttons & Cards */
+  .hover-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .hover-shimmer::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 30%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(25deg);
+    transition: all 0.75s ease;
+    opacity: 0;
+  }
+  .hover-shimmer:hover::after {
+    left: 120%;
+    opacity: 1;
+    transition: all 0.75s ease;
+  }
+
+  /* Continuous Skeleton Shimmer Loader */
+  .shimmer-skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #f1f5f9;
+  }
+  .shimmer-skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 20%,
+      rgba(255, 255, 255, 0.6) 60%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: skeleton-sweep 1.6s infinite;
   }
 }
 
@@ -44,24 +102,25 @@ body {
   @apply bg-green-500 text-white;
 }
 
+/* Animations */
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
 
+@keyframes shiver {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+  50% { transform: translate(1px, -1px) rotate(0.5deg); }
+  75% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  100% { transform: translate(1px, 1px) rotate(0.5deg); }
+}
+
+@keyframes skeleton-sweep {
+  100% { transform: translateX(100%); }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-::selection {
-  @apply bg-emerald-500 text-white;
 }

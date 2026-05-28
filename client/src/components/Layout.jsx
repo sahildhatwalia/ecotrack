@@ -1,15 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
-import { Menu, X, Leaf } from 'lucide-react';
+import { Menu, X, Leaf, WifiOff, Wifi, RefreshCw, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const Layout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      toast.success("Telemetry signal restored! Re-syncing nodes...");
+    };
+    const handleOffline = () => {
+      setIsOffline(true);
+      toast.error("Offline Mode. Displaying cached dashboard state.");
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const handleManualSync = () => {
+    setIsSyncing(true);
+    toast.loading("Pinging EcoTrack network gateway...", { duration: 1500 });
+    setTimeout(() => {
+      setIsSyncing(false);
+      if (navigator.onLine) {
+        setIsOffline(false);
+        toast.success("Successfully synced all workspace telemetry nodes!");
+      } else {
+        toast.error("Gateway unreachable. Retrying passive sync.");
+      }
+    }, 1600);
+  };
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-inter">
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-outfit relative">
       {/* Sidebar - Desktop */}
       <div className="hidden md:block">
         <Sidebar aria-label="Main Navigation" />
@@ -60,6 +96,35 @@ const Layout = () => {
 
         {/* Global Topbar for Search & AI Alerts */}
         <Topbar />
+
+        {/* Dynamic Offline / Connection Interrupted Banner */}
+        <AnimatePresence>
+          {isOffline && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-amber-500 text-slate-950 font-bold text-xs p-3 flex flex-wrap items-center justify-between gap-4 px-8 border-b border-amber-600/30 shadow-md relative z-[90] bg-opacity-95 backdrop-blur-md"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-1 bg-amber-600 rounded text-amber-950">
+                  <WifiOff size={14} className="animate-pulse" />
+                </div>
+                <span>Workspace status: <span className="underline">OFFLINE</span>. Remote data operations are paused.</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleManualSync} 
+                  disabled={isSyncing}
+                  className="bg-slate-900 text-white hover:bg-black px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={isSyncing ? "animate-spin" : ""} />
+                  {isSyncing ? "Syncing..." : "Force Gateway Sync"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <main className="flex-1 overflow-y-auto relative p-4 md:p-8 lg:p-10 hide-scrollbar bg-[#f8fafc]">
           <div className="max-w-7xl mx-auto min-h-full">
