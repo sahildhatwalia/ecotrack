@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+// hello new user reward is here
 const RewardSchema = new mongoose.Schema({
   name: {
     type: String,
