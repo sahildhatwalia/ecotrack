@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', res.data.token);
     setToken(res.data.token);
   };
-
+//logout button will work
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
