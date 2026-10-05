@@ -8,7 +8,7 @@ import {
 import { 
   TrendingUp, TrendingDown, Zap, Globe, Gauge, 
   ChevronRight, Sparkles, Trophy, Calendar,
-  ArrowUpRight, AlertCircle, Info, MessageSquare
+  ArrowUpRight, AlertCircle, Info, MessageSquare, Leaf
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,10 +23,10 @@ ChartJS.register(
 const StatCard = ({ title, value, trend, icon: Icon, color }) => (
   <motion.div 
     whileHover={{ y: -4 }}
-    className="saas-card p-6 flex flex-col bg-white group cursor-default"
+    className="saas-card p-6 flex flex-col bg-white/90 group cursor-default ring-1 ring-slate-200/80"
   >
     <div className="flex items-center justify-between mb-4">
-      <div className={`p-2.5 rounded-xl ${color} bg-opacity-10 shadow-sm group-hover:scale-110 transition-transform`}>
+      <div className={`p-2.5 rounded-xl ${color} bg-opacity-10 shadow-sm group-hover:scale-110 transition-transform ring-1 ring-white/60`}>
         <Icon size={20} className={color.replace('bg-', 'text-')} />
       </div>
       {trend && (
@@ -238,8 +238,11 @@ const Dashboard = () => {
             className="pb-16 pt-4"
         >
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 border-b border-slate-100 pb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 rounded-3xl border border-green-100 bg-gradient-to-r from-white via-emerald-50/70 to-green-50 p-6 shadow-[0_12px_30px_-20px_rgba(34,197,94,0.4)]">
                 <div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-100/80 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-green-700 mb-3">
+                        <Leaf size={12} /> Eco overview
+                    </div>
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Workspace Dashboard</h1>
                     <p className="text-slate-600 font-semibold text-sm flex items-center gap-2">
                        <Calendar size={15} className="text-green-500" /> Tracking period: <span className="text-slate-900">{months[new Date().getMonth()]} {new Date().getFullYear()}</span>
@@ -289,13 +292,13 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Analytics Chart */}
                 <div className="lg:col-span-8 space-y-8">
-                    <div className="saas-card p-8">
+                    <div className="saas-card p-8 bg-gradient-to-br from-white to-emerald-50/50">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-900 tracking-tight">Environmental Momentum</h3>
                                 <p className="text-xs text-slate-500 font-semibold">Net CO₂ displacement over time</p>
                             </div>
-                            <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                            <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200/50 shadow-inner">
                                {['6M', '1Y', 'ALL'].map(t => (
                                  <button 
                                    key={t} 
