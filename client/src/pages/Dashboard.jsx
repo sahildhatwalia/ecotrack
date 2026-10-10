@@ -305,7 +305,7 @@ const Dashboard = () => {
                                    onClick={() => setChartTimeframe(t)}
                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
                                      t === chartTimeframe 
-                                     ? 'bg-slate-900 text-white shadow-md' 
+                                     ? 'bg-green-600 text-white shadow-sm' 
                                      : 'text-slate-400 hover:text-slate-700'
                                    }`}
                                  >
@@ -393,8 +393,8 @@ const Dashboard = () => {
                         </div>
                         <div className="space-y-4">
                            {leaderboard.map((u, i) => (
-                             <div key={u._id || i} className="flex items-center gap-3">
-                                <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-[10px] ${i === 0 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
+                              <div key={u._id || i} className={`flex items-center gap-3 rounded-xl px-2 py-2 -mx-2 transition-colors hover:bg-slate-50 ${i === 0 ? 'bg-amber-50/60' : ''}`}>
+                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[10px] border ${i === 0 ? 'bg-amber-100 text-amber-700 border-amber-200' : i === 1 ? 'bg-slate-100 text-slate-600 border-slate-200' : i === 2 ? 'bg-orange-50 text-orange-700 border-orange-100' : 'bg-white text-slate-500 border-slate-100'}`}>
                                   {i+1}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -403,7 +403,7 @@ const Dashboard = () => {
                                       <div className="h-full bg-green-500 opacity-60" style={{ width: `${(u.points/5200)*100}%` }} />
                                    </div>
                                 </div>
-                                <p className="text-[10px] font-black text-slate-800">{u.points} pts</p>
+                                <p className="text-[10px] font-black tabular-nums text-slate-700">{u.points} pts</p>
                              </div>
                            ))}
                         </div>
